@@ -1,4 +1,5 @@
 """Functions used to load user data."""
+
 from __future__ import annotations
 
 import json
@@ -41,7 +42,7 @@ def _now() -> datetime:
 def _make_secret() -> str:
     warnings.warn(
         "'make_secret' will be removed in a future release of Copier.\n"
-        "Please use this instead: {{ 999999999999999999999999999999999|ans_random|hash('sha512') }}\n"
+        "Please use this instead: {{ 999999999999999999999999999999999|ans_random|hash('sha512') }}\n"  # noqa: E501
         "random and hash filters documentation: https://docs.ansible.com/ansible/2.3/playbooks_filters.html",
         FutureWarning,
     )
@@ -476,7 +477,7 @@ def parse_yaml_string(string: str) -> Any:
     try:
         return yaml.safe_load(string)
     except yaml.error.YAMLError as error:
-        raise ValueError(str(error))
+        raise ValueError(str(error)) from error
 
 
 def load_answersfile_data(

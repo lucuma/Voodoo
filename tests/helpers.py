@@ -61,8 +61,7 @@ SUFFIX_TMPL = ".tmpl"
 
 
 class Spawn(Protocol):
-    def __call__(self, cmd: tuple[str, ...], *, timeout: int | None) -> PopenSpawn:
-        ...
+    def __call__(self, cmd: tuple[str, ...], *, timeout: int | None) -> PopenSpawn: ...
 
 
 class Keyboard(str, Enum):
@@ -124,7 +123,7 @@ def build_file_tree(spec: Mapping[StrOrPath, str | bytes | Path], dedent: bool =
 def expect_prompt(
     tui: PopenSpawn, name: str, expected_type: str, help: OptStr = None
 ) -> None:
-    """Check that we get a prompt in the standard form"""
+    """Check that we get a prompt in the standard form."""
     if help:
         tui.expect_exact(help)
     else:

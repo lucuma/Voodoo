@@ -13,10 +13,9 @@ from .helpers import BRACKET_ENVOPS_JSON, SUFFIX_TMPL, build_file_tree
 @pytest.fixture(scope="module")
 def template_path(tmp_path_factory: pytest.TempPathFactory) -> str:
     root = tmp_path_factory.mktemp("demo_tasks")
-    build_file_tree(
-        {
-            (root / "copier.yaml"): (
-                f"""\
+    build_file_tree({
+        (root / "copier.yaml"): (
+            f"""\
                 _templates_suffix: {SUFFIX_TMPL}
                 _envops: {BRACKET_ENVOPS_JSON}
 
@@ -31,9 +30,8 @@ def template_path(tmp_path_factory: pytest.TempPathFactory) -> str:
                     - touch [[ other_file ]]
                     - ["[[ _copier_python ]]", "-c", "open('pyfile', 'w').close()"]
                 """
-            )
-        }
-    )
+        )
+    })
     return str(root)
 
 
@@ -55,16 +53,14 @@ def test_copy_tasks(template_path: str, tmp_path: Path) -> None:
 
 def test_pretend_mode(tmp_path_factory: pytest.TempPathFactory) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): (
-                """
+    build_file_tree({
+        (src / "copier.yml"): (
+            """
                 _tasks:
                     - touch created-by-task.txt
                 """
-            )
-        }
-    )
+        )
+    })
     copier.run_copy(str(src), dst, pretend=True, unsafe=True)
     assert not (dst / "created-by-task.txt").exists()
 
@@ -85,10 +81,9 @@ def test_os_specific_tasks(
     filename: str,
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): (
-                """\
+    build_file_tree({
+        (src / "copier.yml"): (
+            """\
                 _tasks:
                 -   >-
                     {% if _copier_conf.os == 'linux' %}
@@ -103,9 +98,8 @@ def test_os_specific_tasks(
                     touch never.txt
                     {% endif %}
                 """
-            )
-        }
-    )
+        )
+    })
     monkeypatch.setattr("copier.main.OS", os)
     copier.run_copy(str(src), dst, unsafe=True)
     assert (dst / filename).exists()

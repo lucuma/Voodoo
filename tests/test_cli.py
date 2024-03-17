@@ -16,17 +16,15 @@ from .helpers import COPIER_CMD, build_file_tree
 @pytest.fixture(scope="module")
 def template_path(tmp_path_factory: pytest.TempPathFactory) -> str:
     root = tmp_path_factory.mktemp("template")
-    build_file_tree(
-        {
-            (root / "{{ _copier_conf.answers_file }}.jinja"): (
-                """\
+    build_file_tree({
+        (root / "{{ _copier_conf.answers_file }}.jinja"): (
+            """\
                 # Changes here will be overwritten by Copier
                 {{ _copier_answers|to_nice_yaml }}
                 """
-            ),
-            (root / "a.txt"): "EXAMPLE_CONTENT",
-        }
-    )
+        ),
+        (root / "a.txt"): "EXAMPLE_CONTENT",
+    })
     return str(root)
 
 
@@ -36,15 +34,13 @@ def template_path_with_dot_config(
 ) -> Generator[Callable[[str], str], str, None]:
     def _template_path_with_dot_config(config_folder: str) -> str:
         root = tmp_path_factory.mktemp("template")
-        build_file_tree(
-            {
-                root / config_folder / "{{ _copier_conf.answers_file }}.jinja": """\
+        build_file_tree({
+            root / config_folder / "{{ _copier_conf.answers_file }}.jinja": """\
                     # Changes here will be overwritten by Copier
                     {{ _copier_answers|to_nice_yaml }}
                     """,
-                root / "a.txt": "EXAMPLE_CONTENT",
-            }
-        )
+            root / "a.txt": "EXAMPLE_CONTENT",
+        })
         return str(root)
 
     yield _template_path_with_dot_config
@@ -103,22 +99,20 @@ def test_cli_data_parsed_by_question_type(
     tmp_path_factory: pytest.TempPathFactory, type_, answer, expected
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): (
-                f"""\
+    build_file_tree({
+        (src / "copier.yml"): (
+            f"""\
                 question:
                     type: {type_}
                 """
-            ),
-            (src / "{{ _copier_conf.answers_file }}.jinja"): (
-                """\
+        ),
+        (src / "{{ _copier_conf.answers_file }}.jinja"): (
+            """\
                 # Changes here will be overwritten by Copier
                 {{ _copier_answers|to_nice_yaml }}
                 """
-            ),
-        }
-    )
+        ),
+    })
     run_result = CopierApp.run(
         ["copier", "copy", f"--data=question={answer}", str(src), str(dst), "--quiet"],
         exit=False,
@@ -133,23 +127,21 @@ def test_data_file_parsed_by_question_type(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> None:
     src, dst, local = map(tmp_path_factory.mktemp, ("src", "dst", "local"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): (
-                """\
+    build_file_tree({
+        (src / "copier.yml"): (
+            """\
                 question:
                     type: str
                 """
-            ),
-            (src / "{{ _copier_conf.answers_file }}.jinja"): (
-                """\
+        ),
+        (src / "{{ _copier_conf.answers_file }}.jinja"): (
+            """\
                 # Changes here will be overwritten by Copier
                 {{ _copier_answers|to_nice_yaml }}
                 """
-            ),
-            (local / "data.yml"): yaml.dump({"question": "answer"}),
-        }
-    )
+        ),
+        (local / "data.yml"): yaml.dump({"question": "answer"}),
+    })
 
     run_result = CopierApp.run(
         [
@@ -172,10 +164,9 @@ def test_data_cli_takes_precedence_over_data_file(
     tmp_path_factory: pytest.TempPathFactory,
 ):
     src, dst, local = map(tmp_path_factory.mktemp, ("src", "dst", "local"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): (
-                """\
+    build_file_tree({
+        (src / "copier.yml"): (
+            """\
                 question:
                     type: str
                 another_question:
@@ -183,22 +174,19 @@ def test_data_cli_takes_precedence_over_data_file(
                 yet_another_question:
                     type: str
                 """
-            ),
-            (src / "{{ _copier_conf.answers_file }}.jinja"): (
-                """\
+        ),
+        (src / "{{ _copier_conf.answers_file }}.jinja"): (
+            """\
                 # Changes here will be overwritten by Copier
                 {{ _copier_answers|to_nice_yaml }}
                 """
-            ),
-            (local / "data.yml"): yaml.dump(
-                {
-                    "question": "does not matter",
-                    "another_question": "another answer!",
-                    "yet_another_question": "sure, one more for you!",
-                }
-            ),
-        }
-    )
+        ),
+        (local / "data.yml"): yaml.dump({
+            "question": "does not matter",
+            "another_question": "another answer!",
+            "yet_another_question": "sure, one more for you!",
+        }),
+    })
 
     answer_override = "fourscore and seven years ago"
     run_result = CopierApp.run(
@@ -240,7 +228,6 @@ def test_good_cli_run_dot_config(
 
     Added based on the discussion: https://github.com/copier-org/copier/discussions/859
     """
-
     src = template_path_with_dot_config(str(config_folder))
 
     with local.cwd(src):

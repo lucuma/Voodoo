@@ -64,10 +64,9 @@ def test_read_data(
     tmp_path_factory: pytest.TempPathFactory, config_suffix: str
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / f"copier.{config_suffix}"): (
-                f"""\
+    build_file_tree({
+        (src / f"copier.{config_suffix}"): (
+            f"""\
                 # This is a comment
                 _envops: {BRACKET_ENVOPS_JSON}
                 a_string: lorem ipsum
@@ -78,17 +77,16 @@ def test_read_data(
                     - two
                     - three
                 """
-            ),
-            (src / "user_data.txt.jinja"): (
-                """\
+        ),
+        (src / "user_data.txt.jinja"): (
+            """\
                 A string: [[ a_string ]]
                 A number: [[ a_number ]]
                 A boolean: [[ a_boolean ]]
                 A list: [[ ", ".join(a_list) ]]
                 """
-            ),
-        }
-    )
+        ),
+    })
     copier.run_copy(str(src), dst, defaults=True, overwrite=True)
     assert (dst / "user_data.txt").read_text() == dedent(
         """\
@@ -126,7 +124,7 @@ def test_invalid_config_data(
 ) -> None:
     template = Template(conf_path)
     with pytest.raises(InvalidConfigFileError):
-        template.config_data # noqa: B018
+        template.config_data  # noqa: B018
     if check_err:
         _, err = capsys.readouterr()
         assert check_err(err)
@@ -135,11 +133,10 @@ def test_invalid_config_data(
 def test_valid_multi_section(tmp_path: Path) -> None:
     """Including multiple files works fine merged with multiple sections."""
     with local.cwd(tmp_path):
-        build_file_tree(
-            {
-                "exclusions.yml": "_exclude: ['*.yml']",
-                "common_jinja.yml": (
-                    f"""\
+        build_file_tree({
+            "exclusions.yml": "_exclude: ['*.yml']",
+            "common_jinja.yml": (
+                f"""\
                     _templates_suffix: {SUFFIX_TMPL}
                     _envops:
                         block_start_string: "[%"
@@ -150,18 +147,18 @@ def test_valid_multi_section(tmp_path: Path) -> None:
                         variable_end_string: "]]"
                         keep_trailing_newline: true
                     """
-                ),
-                "common_questions.yml": (
-                    """\
+            ),
+            "common_questions.yml": (
+                """\
                     your_age:
                         type: int
                     your_name:
                         type: yaml
                         help: your name from common questions
                     """
-                ),
-                "copier.yml": (
-                    """\
+            ),
+            "copier.yml": (
+                """\
                     ---
                     !include 'common_*.yml'
                     ---
@@ -171,9 +168,8 @@ def test_valid_multi_section(tmp_path: Path) -> None:
                         type: str
                         help: your name from latest section
                     """
-                ),
-            }
-        )
+            ),
+        })
     template = Template(str(tmp_path))
     assert template.exclude == ("*.yml",)
     assert template.envops == {
@@ -193,10 +189,9 @@ def test_valid_multi_section(tmp_path: Path) -> None:
 
 def test_empty_section(tmp_path: Path) -> None:
     """Empty sections are ignored."""
-    build_file_tree(
-        {
-            (tmp_path / "copier.yml"): (
-                """\
+    build_file_tree({
+        (tmp_path / "copier.yml"): (
+            """\
                 ---
                 ---
 
@@ -207,9 +202,8 @@ def test_empty_section(tmp_path: Path) -> None:
                     type: str
                 ---
                 """
-            ),
-        }
-    )
+        ),
+    })
     template = Template(str(tmp_path))
     assert template.questions_data == {
         "your_age": {"type": "int"},
@@ -219,15 +213,13 @@ def test_empty_section(tmp_path: Path) -> None:
 
 def test_include_path_must_be_relative(tmp_path: Path) -> None:
     """Include path must not be a relative path."""
-    build_file_tree(
-        {
-            (tmp_path / "copier.yml"): (
-                """\
+    build_file_tree({
+        (tmp_path / "copier.yml"): (
+            """\
                 !include /absolute/path/to/common.yml
                 """
-            ),
-        }
-    )
+        ),
+    })
     template = Template(str(tmp_path))
     with pytest.raises(
         ValueError, match="YAML include file path must be a relative path"
@@ -238,15 +230,13 @@ def test_include_path_must_be_relative(tmp_path: Path) -> None:
 @pytest.mark.parametrize("include_value", ["[]", "{}"])
 def test_include_value_must_be_scalar_node(tmp_path: Path, include_value: str) -> None:
     """Include value must be a YAML scalar node."""
-    build_file_tree(
-        {
-            (tmp_path / "copier.yml"): (
-                f"""\
+    build_file_tree({
+        (tmp_path / "copier.yml"): (
+            f"""\
                 !include {include_value}
                 """
-            ),
-        }
-    )
+        ),
+    })
     template = Template(str(tmp_path))
     with pytest.raises(ValueError, match=r"^Unsupported YAML node:"):
         template.config_data  # noqa: B018
@@ -261,7 +251,7 @@ def test_config_data_empty() -> None:
 def test_multiple_config_file_error() -> None:
     template = Template("tests/demo_multi_config")
     with pytest.raises(MultipleConfigFilesError):
-        template.config_data # noqa: B018
+        template.config_data  # noqa: B018
 
 
 # ConfigData
@@ -400,10 +390,9 @@ def test_user_defaults(
     expected: str,
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yaml"): (
-                """\
+    build_file_tree({
+        (src / "copier.yaml"): (
+            """\
                 a_string:
                     default: lorem ipsum
                     type: str
@@ -420,23 +409,22 @@ def test_user_defaults(
                         - three
                     type: json
                 """
-            ),
-            (src / "user_data.txt.jinja"): (
-                """\
+        ),
+        (src / "user_data.txt.jinja"): (
+            """\
                 A string: {{ a_string }}
                 A number: {{ a_number }}
                 A boolean: {{ a_boolean }}
                 A list: {{ ", ".join(a_list) }}
                 """
-            ),
-            (src / "{{ _copier_conf.answers_file }}.jinja"): (
-                """\
+        ),
+        (src / "{{ _copier_conf.answers_file }}.jinja"): (
+            """\
                 # Changes here will be overwritten by Copier
                 {{ _copier_answers|to_nice_yaml }}
                 """
-            ),
-        }
-    )
+        ),
+    })
     copier.run_copy(
         str(src),
         dst,
@@ -543,28 +531,26 @@ def test_user_defaults_updated(
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
     with local.cwd(src):
-        build_file_tree(
-            {
-                (src / "copier.yaml"): (
-                    """\
+        build_file_tree({
+            (src / "copier.yaml"): (
+                """\
                     a_string:
                         default: lorem ipsum
                         type: str
                     """
-                ),
-                (src / "user_data.txt.jinja"): (
-                    """\
+            ),
+            (src / "user_data.txt.jinja"): (
+                """\
                     A string: {{ a_string }}
                     """
-                ),
-                (src / "{{ _copier_conf.answers_file }}.jinja"): (
-                    """\
+            ),
+            (src / "{{ _copier_conf.answers_file }}.jinja"): (
+                """\
                     # Changes here will be overwritten by Copier
                     {{ _copier_answers|to_nice_yaml }}
                     """
-                ),
-            }
-        )
+            ),
+        })
         git_init()
 
     copier.run_copy(

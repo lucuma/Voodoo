@@ -13,16 +13,15 @@ from .helpers import BRACKET_ENVOPS_JSON, SUFFIX_TMPL, build_file_tree
 @pytest.fixture(scope="module")
 def template_path(tmp_path_factory: pytest.TempPathFactory) -> str:
     root = tmp_path_factory.mktemp("template")
-    build_file_tree(
-        {
-            (root / "[[ _copier_conf.answers_file ]].tmpl"): (
-                """\
+    build_file_tree({
+        (root / "[[ _copier_conf.answers_file ]].tmpl"): (
+            """\
                 # Changes here will be overwritten by Copier
                 [[ _copier_answers|to_nice_yaml ]]
                 """
-            ),
-            (root / "copier.yml"): (
-                f"""\
+        ),
+        (root / "copier.yml"): (
+            f"""\
                 _answers_file: .answers-file-changed-in-template.yml
                 _templates_suffix: {SUFFIX_TMPL}
                 _envops: {BRACKET_ENVOPS_JSON}
@@ -38,16 +37,15 @@ def template_path(tmp_path_factory: pytest.TempPathFactory) -> str:
                     secret: yes
                     default: password two
                 """
-            ),
-            (root / "round.txt.tmpl"): (
-                """\
+        ),
+        (root / "round.txt.tmpl"): (
+            """\
                 It's the [[round]] round.
                 password_1=[[password_1]]
                 password_2=[[password_2]]
                 """
-            ),
-        }
-    )
+        ),
+    })
     return str(root)
 
 

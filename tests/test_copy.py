@@ -40,23 +40,21 @@ def test_project_not_found(tmp_path: Path) -> None:
 
 def test_copy_with_non_version_tags(tmp_path_factory: pytest.TempPathFactory) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / ".copier-answers.yml.jinja"): (
-                """\
+    build_file_tree({
+        (src / ".copier-answers.yml.jinja"): (
+            """\
                 # Changes here will be overwritten by Copier
                 {{ _copier_answers|to_nice_yaml }}
                 """
-            ),
-            (src / "copier.yaml"): (
-                """\
+        ),
+        (src / "copier.yaml"): (
+            """\
                 _tasks:
                     - cat v1.txt
                 """
-            ),
-            (src / "v1.txt"): "file only in v1",
-        }
-    )
+        ),
+        (src / "v1.txt"): "file only in v1",
+    })
     with local.cwd(src):
         git("init")
         git("add", ".")
@@ -92,14 +90,12 @@ def test_tag_autodetect_v_prefix_optional(
 ) -> None:
     """Tags with and without `v` prefix should work the same."""
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "version.txt"): "1",
-            (
-                src / "{{_copier_conf.answers_file}}.jinja"
-            ): "{{ _copier_answers|to_nice_yaml -}}",
-        }
-    )
+    build_file_tree({
+        (src / "version.txt"): "1",
+        (
+            src / "{{_copier_conf.answers_file}}.jinja"
+        ): "{{ _copier_answers|to_nice_yaml -}}",
+    })
     # One stable tag
     git_save(src, tag=f"{prefix}1.2.3")
     # One pre or post release tag
@@ -124,23 +120,21 @@ def test_copy_with_non_version_tags_and_vcs_ref(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / ".copier-answers.yml.jinja"): (
-                """\
+    build_file_tree({
+        (src / ".copier-answers.yml.jinja"): (
+            """\
                 # Changes here will be overwritten by Copier
                 {{ _copier_answers|to_nice_yaml }}
                 """
-            ),
-            (src / "copier.yaml"): (
-                """\
+        ),
+        (src / "copier.yaml"): (
+            """\
                 _tasks:
                     - cat v1.txt
                 """
-            ),
-            (src / "v1.txt"): "file only in v1",
-        }
-    )
+        ),
+        (src / "v1.txt"): "file only in v1",
+    })
     with local.cwd(src):
         git("init")
         git("add", ".")
@@ -265,15 +259,13 @@ def test_exclude_extends(tmp_path_factory: pytest.TempPathFactory) -> None:
 def test_exclude_replaces(tmp_path_factory: pytest.TempPathFactory) -> None:
     """Exclude in copier.yml replaces default values."""
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            src / "test.txt": "Test text",
-            src / "test.json": '"test json"',
-            src / "test.yaml": '"test yaml"',
-            src / "copier.yaml.jinja": "purpose: template inception",
-            src / "copier.yml": "_exclude: ['*.json']",
-        }
-    )
+    build_file_tree({
+        src / "test.txt": "Test text",
+        src / "test.json": '"test json"',
+        src / "test.yaml": '"test yaml"',
+        src / "copier.yaml.jinja": "purpose: template inception",
+        src / "copier.yml": "_exclude: ['*.json']",
+    })
     copier.run_copy(str(src), dst, exclude=["*.txt"])
     assert (dst / "test.yaml").is_file()
     assert not (dst / "test.txt").exists()
@@ -407,12 +399,10 @@ def test_preserved_permissions(
 
 def test_commit_hash(tmp_path_factory: pytest.TempPathFactory) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            src / "commit.jinja": "{{_copier_conf.vcs_ref_hash}}",
-            src / "tag.jinja": "{{_copier_answers._commit}}",
-        }
-    )
+    build_file_tree({
+        src / "commit.jinja": "{{_copier_conf.vcs_ref_hash}}",
+        src / "tag.jinja": "{{_copier_answers._commit}}",
+    })
     with local.cwd(src):
         git("init")
         git("add", "-A")
@@ -426,13 +416,11 @@ def test_commit_hash(tmp_path_factory: pytest.TempPathFactory) -> None:
 
 def test_value_with_forward_slash(tmp_path_factory: pytest.TempPathFactory) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "{{ filename.replace('.', _copier_conf.sep) }}.txt"): (
-                "This is template."
-            ),
-        }
-    )
+    build_file_tree({
+        (src / "{{ filename.replace('.', _copier_conf.sep) }}.txt"): (
+            "This is template."
+        ),
+    })
     copier.run_copy(str(src), dst, data={"filename": "a.b.c"})
     assert (dst / "a" / "b" / "c.txt").read_text() == "This is template."
 
@@ -718,17 +706,13 @@ def test_validate_init_data(
     expected: ContextManager[None],
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): yaml.dump(
-                {
-                    "_envops": BRACKET_ENVOPS,
-                    "_templates_suffix": ".jinja",
-                    "q": spec,
-                }
-            ),
-        }
-    )
+    build_file_tree({
+        (src / "copier.yml"): yaml.dump({
+            "_envops": BRACKET_ENVOPS,
+            "_templates_suffix": ".jinja",
+            "q": spec,
+        }),
+    })
     with expected:
         copier.run_copy(str(src), dst, data={"q": value})
 
@@ -738,10 +722,9 @@ def test_validate_init_data_with_skipped_question(
     tmp_path_factory: pytest.TempPathFactory, defaults: bool
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): (
-                f"""\
+    build_file_tree({
+        (src / "copier.yml"): (
+            f"""\
                 _envops: {BRACKET_ENVOPS_JSON}
 
                 kind:
@@ -761,16 +744,15 @@ def test_validate_init_data_with_skipped_question(
                     type: str
                     help: any string foo?
                 """
-            ),
-            (src / "result.jinja"): (
-                """\
+        ),
+        (src / "result.jinja"): (
+            """\
                 [[ kind ]]
                 [[ testbar ]]
                 [[ testfoo ]]
                 """
-            ),
-        }
-    )
+        ),
+    })
     copier.run_copy(
         str(src), dst, defaults=defaults, data={"kind": "foo", "testfoo": "helloworld"}
     )
@@ -785,17 +767,13 @@ def test_required_question_without_data(
     tmp_path_factory: pytest.TempPathFactory, type_name: str
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): yaml.safe_dump(
-                {
-                    "question": {
-                        "type": type_name,
-                    }
-                }
-            )
-        }
-    )
+    build_file_tree({
+        (src / "copier.yml"): yaml.safe_dump({
+            "question": {
+                "type": type_name,
+            }
+        })
+    })
     with pytest.raises(ValueError, match='Question "question" is required'):
         copier.run_copy(str(src), dst, defaults=True)
 
@@ -814,18 +792,14 @@ def test_required_choice_question_without_data(
     tmp_path_factory: pytest.TempPathFactory, type_name: str, choices: list[Any]
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): yaml.safe_dump(
-                {
-                    "question": {
-                        "type": type_name,
-                        "choices": choices,
-                    }
-                }
-            )
-        }
-    )
+    build_file_tree({
+        (src / "copier.yml"): yaml.safe_dump({
+            "question": {
+                "type": type_name,
+                "choices": choices,
+            }
+        })
+    })
     with pytest.raises(ValueError, match='Question "question" is required'):
         copier.run_copy(str(src), dst, defaults=True)
 
@@ -897,18 +871,14 @@ def test_validate_default_value(
     expected: ContextManager[None],
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): yaml.dump(
-                {
-                    "q": {
-                        "type": type_name,
-                        "default": default,
-                    }
-                }
-            )
-        }
-    )
+    build_file_tree({
+        (src / "copier.yml"): yaml.dump({
+            "q": {
+                "type": type_name,
+                "default": default,
+            }
+        })
+    })
     with expected:
         copier.run_copy(str(src), dst, defaults=True)
 
@@ -917,19 +887,15 @@ def test_multiselect_choices_preserve_order(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): yaml.dump(
-                {
-                    "q": {
-                        "type": "str",
-                        "choices": ["one", "two", "three"],
-                        "multiselect": True,
-                    }
-                }
-            ),
-            (src / "q.yml.jinja"): "{{ q | to_nice_yaml }}",
-        }
-    )
+    build_file_tree({
+        (src / "copier.yml"): yaml.dump({
+            "q": {
+                "type": "str",
+                "choices": ["one", "two", "three"],
+                "multiselect": True,
+            }
+        }),
+        (src / "q.yml.jinja"): "{{ q | to_nice_yaml }}",
+    })
     copier.run_copy(str(src), dst, data={"q": ["three", "one", "two"]})
     assert yaml.safe_load((dst / "q.yml").read_text()) == ["one", "two", "three"]

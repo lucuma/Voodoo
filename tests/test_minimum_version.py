@@ -19,16 +19,14 @@ from .helpers import build_file_tree
 @pytest.fixture(scope="module")
 def template_path(tmp_path_factory: pytest.TempPathFactory) -> str:
     root = tmp_path_factory.mktemp("template")
-    build_file_tree(
-        {
-            (root / "copier.yaml"): (
-                """\
+    build_file_tree({
+        (root / "copier.yaml"): (
+            """\
                 _min_copier_version: "10.5.1"
                 """
-            ),
-            (root / "README.md"): "",
-        }
-    )
+        ),
+        (root / "README.md"): "",
+    })
     return str(root)
 
 

@@ -1,4 +1,5 @@
 """Main functions and classes, used to generate or update projects."""
+
 from __future__ import annotations
 
 import os
@@ -119,12 +120,14 @@ class Worker:
             See [cleanup_on_error][].
 
         defaults:
-            When `True`, use default answers to questions, which might be null if not specified.
+            When `True`, use default answers to questions, which might be null if not
+            specified.
 
             See [defaults][].
 
         user_defaults:
-            Specify user defaults that may override a template's defaults during question prompts.
+            Specify user defaults that may override a template's defaults during
+            question prompts.
 
         overwrite:
             When `True`, Overwrite files that already exist, without asking.
@@ -497,7 +500,7 @@ class Worker:
                 f"Copier could not load some Jinja extensions:\n{error}\n"
                 "Make sure to install these extensions alongside Copier itself.\n"
                 "See the docs at https://copier.readthedocs.io/en/latest/configuring/#jinja_extensions"
-            )
+            ) from error
         # patch the `to_json` filter to support Pydantic dataclasses
         env.filters["to_json"] = partial(
             env.filters["to_json"], default=to_jsonable_python
@@ -801,8 +804,8 @@ class Worker:
             raise UserMessageError("Cannot update: version from template not detected.")
         if self.subproject.template.version > self.template.version:
             raise UserMessageError(
-                f"You are downgrading from {self.subproject.template.version} to {self.template.version}. "
-                "Downgrades are not supported."
+                f"You are downgrading from {self.subproject.template.version} to "
+                f"{self.template.version}. Downgrades are not supported."
             )
         if not self.overwrite:
             # Only git-tracked subprojects can be updated, so the user can
@@ -865,7 +868,8 @@ class Worker:
             self._execute_tasks(
                 self.template.migration_tasks("before", self.subproject.template)
             )
-            # Clear last answers cache to load possible answers migration, if skip_answered flag is not set
+            # Clear last answers cache to load possible answers migration, if
+            # skip_answered flag is not set
             if self.skip_answered is False:
                 self.answers = AnswersMap()
                 with suppress(AttributeError):
@@ -947,7 +951,8 @@ class Worker:
                     # see SO post: https://stackoverflow.com/questions/77391627/
                     # and Git docs: https://git-scm.com/docs/git-update-index#_using_index_info.
                     # For each file with conflict markers, we update the index to add
-                    # higher order versions of their paths, without entries for resolved contents.
+                    # higher order versions of their paths, without entries for resolved
+                    # contents.
                     if conflicted:
                         input_lines = []
                         for line in (

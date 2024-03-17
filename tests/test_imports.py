@@ -132,13 +132,13 @@ def test_import_macro(
             (
                 src
                 / subdir
-                / "{% from pathjoin('includes', 'slugify.jinja') import slugify %}{{ slugify(name) }}.txt"
+                / "{% from pathjoin('includes', 'slugify.jinja') import slugify %}{{ slugify(name) }}.txt"  # noqa: E501
             ): "",
             # File for testing the Jinja import statement in the folder name.
             (
                 src
                 / subdir
-                / "{% from pathjoin('includes', 'slugify.jinja') import slugify %}{{ slugify(name) }}"
+                / "{% from pathjoin('includes', 'slugify.jinja') import slugify %}{{ slugify(name) }}"  # noqa: E501
                 / "test.txt"
             ): "",
         }

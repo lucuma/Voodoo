@@ -1,4 +1,5 @@
 """Tools related to template management."""
+
 from __future__ import annotations
 
 import re

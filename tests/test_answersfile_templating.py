@@ -34,8 +34,7 @@ def template_path(tmp_path_factory: pytest.TempPathFactory) -> str:
 def test_answersfile_templating(
     template_path: str, tmp_path: Path, answers_file: str | None
 ) -> None:
-    """
-    Test copier behaves properly when _answers_file contains a template
+    """Test copier behaves properly when _answers_file contains a template.
 
     Checks that template is resolved successfully and that a subsequent
     copy that resolves to a different answers file doesn't clobber the

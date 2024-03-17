@@ -41,12 +41,10 @@ def test_copy(tmp_path_factory: pytest.TempPathFactory) -> None:
 
 def test_copy_dirty_head(tmp_path_factory: pytest.TempPathFactory) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            src / "tracked": "",
-            src / "untracked": "",
-        }
-    )
+    build_file_tree({
+        src / "tracked": "",
+        src / "untracked": "",
+    })
     with local.cwd(src):
         git("init")
         git("add", "tracked")
@@ -61,12 +59,10 @@ def test_copy_dirty_head_with_gpg(
     tmp_path_factory: pytest.TempPathFactory, gitconfig: GitConfig
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            src / "tracked": "",
-            src / "untracked": "",
-        }
-    )
+    build_file_tree({
+        src / "tracked": "",
+        src / "untracked": "",
+    })
     with local.cwd(src):
         git("init")
         git("add", "tracked")
@@ -83,33 +79,31 @@ def test_copy_dirty_head_with_gpg(
 def test_update(tmp_path_factory: pytest.TempPathFactory) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
 
-    build_file_tree(
-        {
-            (src / ".copier-answers.yml.jinja"): (
-                """\
+    build_file_tree({
+        (src / ".copier-answers.yml.jinja"): (
+            """\
                 # Changes here will be overwritten by Copier
                 {{ _copier_answers|to_nice_yaml }}
                 """
-            ),
-            (src / "copier.yml"): (
-                """\
+        ),
+        (src / "copier.yml"): (
+            """\
                 _envops:
                     "keep_trailing_newline": True
                 """
-            ),
-            (src / "aaaa.txt"): (
-                """
+        ),
+        (src / "aaaa.txt"): (
+            """
                 Lorem ipsum
                 """
-            ),
-            (src / "to_delete.txt"): (
-                """
+        ),
+        (src / "to_delete.txt"): (
+            """
                 delete me.
                 """
-            ),
-            (src / "symlink.txt"): Path("./to_delete.txt"),
-        }
-    )
+        ),
+        (src / "symlink.txt"): Path("./to_delete.txt"),
+    })
 
     with local.cwd(src):
         git("init")
@@ -173,27 +167,25 @@ def test_update_with_gpg_sign(
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
 
-    build_file_tree(
-        {
-            (src / ".copier-answers.yml.jinja"): (
-                """\
+    build_file_tree({
+        (src / ".copier-answers.yml.jinja"): (
+            """\
                 # Changes here will be overwritten by Copier
                 {{ _copier_answers|to_nice_yaml }}
                 """
-            ),
-            (src / "copier.yml"): (
-                """\
+        ),
+        (src / "copier.yml"): (
+            """\
                 _envops:
                     "keep_trailing_newline": True
                 """
-            ),
-            (src / "aaaa.txt"): (
-                """
+        ),
+        (src / "aaaa.txt"): (
+            """
                 Lorem ipsum
                 """
-            ),
-        }
-    )
+        ),
+    })
 
     with local.cwd(src):
         git("init")

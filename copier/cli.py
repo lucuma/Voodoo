@@ -68,8 +68,8 @@ def _handle_exceptions(method: Callable[[], None]) -> int:
     try:
         try:
             method()
-        except KeyboardInterrupt:
-            raise UserMessageError("Execution stopped by user")
+        except KeyboardInterrupt as e:
+            raise UserMessageError("Execution stopped by user") from e
     except UserMessageError as error:
         print(colors.red | "\n".join(error.args), file=sys.stderr)
         return 1
@@ -84,21 +84,18 @@ class CopierApp(cli.Application):
     """The Copier CLI application."""
 
     DESCRIPTION = "Create a new project from a template."
-    DESCRIPTION_MORE = (
-        dedent(
-            """\
+    DESCRIPTION_MORE = dedent(
+        """\
             Docs in https://copier.readthedocs.io/
 
             """
-        )
-        + (
-            colors.yellow
-            | dedent(
-                """\
+    ) + (
+        colors.yellow
+        | dedent(
+            """\
                 WARNING! Use only trusted project templates, as they might
                 execute code with the same level of access as your user.\n
                 """
-            )
         )
     )
     VERSION = copier_version()

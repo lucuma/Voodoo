@@ -46,9 +46,10 @@ def test_config_exclude_extended(tmp_path_factory: pytest.TempPathFactory) -> No
 
 def test_config_include(tmp_path_factory: pytest.TempPathFactory) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {src / "copier.yml": "_exclude: ['!.svn']", src / ".svn" / "hello": ""}
-    )
+    build_file_tree({
+        src / "copier.yml": "_exclude: ['!.svn']",
+        src / ".svn" / "hello": "",
+    })
     run_copy(str(src), dst, quiet=True)
     assert (dst / ".svn" / "hello").exists()
     assert (dst / "copier.yml").exists()
@@ -73,10 +74,9 @@ def test_path_filter(tmp_path_factory: pytest.TempPathFactory) -> None:
         "mañana.txt": False,
         "manana.txt": False,
     }
-    build_file_tree(
-        {
-            (src / "copier.yaml"): (
-                """\
+    build_file_tree({
+        (src / "copier.yaml"): (
+            """\
                 _exclude:
                     # simple file patterns and their negations
                     - "*.exclude"
@@ -88,10 +88,9 @@ def test_path_filter(tmp_path_factory: pytest.TempPathFactory) -> None:
                     # unicode patterns
                     - "mañana.txt"
                 """
-            ),
-            **{(src / key): str(value) for key, value in file_excluded.items()},
-        }
-    )
+        ),
+        **{(src / key): str(value) for key, value in file_excluded.items()},
+    })
     run_copy(str(src), dst)
     for key, value in file_excluded.items():
         assert (dst / key).exists() != value
@@ -105,12 +104,10 @@ def test_config_exclude_with_subdirectory(
     assert "copier.yml" in DEFAULT_EXCLUDE
 
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            src / "copier.yml": "_subdirectory: 'template'",
-            src / "template" / "copier.yml": "",
-        }
-    )
+    build_file_tree({
+        src / "copier.yml": "_subdirectory: 'template'",
+        src / "template" / "copier.yml": "",
+    })
     run_copy(str(src), dst, quiet=True)
     assert (dst / "copier.yml").exists()
 
@@ -123,9 +120,10 @@ def test_config_exclude_with_subdirectory_dot(
     assert "copier.yml" in DEFAULT_EXCLUDE
 
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {src / "copier.yml": "_subdirectory: '.'", src / "template" / "copier.yml": ""}
-    )
+    build_file_tree({
+        src / "copier.yml": "_subdirectory: '.'",
+        src / "template" / "copier.yml": "",
+    })
     run_copy(str(src), dst, quiet=True)
     assert not (dst / "template" / "copier.yml").exists()
 
@@ -138,9 +136,10 @@ def test_config_exclude_with_subdirectory_empty_string(
     assert "copier.yml" in DEFAULT_EXCLUDE
 
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {src / "copier.yml": "_subdirectory: ''", src / "template" / "copier.yml": ""}
-    )
+    build_file_tree({
+        src / "copier.yml": "_subdirectory: ''",
+        src / "template" / "copier.yml": "",
+    })
     run_copy(str(src), dst, quiet=True)
     assert not (dst / "template" / "copier.yml").exists()
 
@@ -162,19 +161,17 @@ def test_config_exclude_copieryml_without_templates_suffix(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): (
-                """\
+    build_file_tree({
+        (src / "copier.yml"): (
+            """\
                 _subdirectory: .
                 _templates_suffix: ""
                 _envops:
                     block_start_string: "[?"
                     block_end_string: "?]"
                 """
-            ),
-        }
-    )
+        ),
+    })
     run_copy(str(src), dst, quiet=True)
     assert not (dst / "copier.yml").exists()
 
@@ -183,25 +180,23 @@ def test_config_exclude_file_with_bad_jinja_syntax_without_templates_suffix(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): (
-                """\
+    build_file_tree({
+        (src / "copier.yml"): (
+            """\
                 _subdirectory: .
                 _templates_suffix: ""
                 _exclude:
                     - copier.yml
                     - exclude-me.txt
                 """
-            ),
-            (src / "exclude-me.txt"): (
-                """\
+        ),
+        (src / "exclude-me.txt"): (
+            """\
                 "{%" is malformed Jinja syntax but it doesn't matter because
                 this file is excluded
                 """
-            ),
-        }
-    )
+        ),
+    })
     run_copy(str(src), dst, quiet=True)
     assert not (dst / "copier.yml").exists()
     assert not (dst / "exclude-me.txt").exists()
@@ -211,10 +206,9 @@ def test_config_exclude_with_templated_path(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): (
-                """\
+    build_file_tree({
+        (src / "copier.yml"): (
+            """\
                 _exclude:
                     - "*"
                     - "!keep-me.txt"
@@ -222,11 +216,10 @@ def test_config_exclude_with_templated_path(
                 filename_keep: keep-me.txt
                 filename_exclude: exclude-me.txt
                 """
-            ),
-            (src / "{{ filename_keep }}.jinja"): "",
-            (src / "{{ filename_exclude }}.jinja"): "",
-        }
-    )
+        ),
+        (src / "{{ filename_keep }}.jinja"): "",
+        (src / "{{ filename_exclude }}.jinja"): "",
+    })
     run_copy(str(src), dst, defaults=True, quiet=True)
     assert (dst / "keep-me.txt").exists()
     assert not (dst / "exclude-me.txt").exists()

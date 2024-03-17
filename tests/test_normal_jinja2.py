@@ -9,10 +9,9 @@ from .helpers import build_file_tree
 
 def test_normal_jinja2(tmp_path_factory: pytest.TempPathFactory) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): (
-                """\
+    build_file_tree({
+        (src / "copier.yml"): (
+            """\
                 _templates_suffix: .jinja
                 _envops:
                     autoescape: false
@@ -27,9 +26,9 @@ def test_normal_jinja2(tmp_path_factory: pytest.TempPathFactory) -> None:
                 name: Guybrush
                 todo: Become a pirate
                 """
-            ),
-            (src / "TODO.txt.jinja"): (
-                """\
+        ),
+        (src / "TODO.txt.jinja"): (
+            """\
                 [[ {{ name }} TODO LIST]]
                 {# Let's put an ugly not-comment below #}
                 [# GROG #]
@@ -37,9 +36,8 @@ def test_normal_jinja2(tmp_path_factory: pytest.TempPathFactory) -> None:
                     - {{ todo }}
                     {% endif %}
                 """
-            ),
-        }
-    )
+        ),
+    })
     # No warnings, because template is explicit
     with warnings.catch_warnings():
         warnings.simplefilter("error")
@@ -53,19 +51,17 @@ def test_to_not_keep_trailing_newlines_in_jinja2(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            (src / "copier.yml"): (
-                """\
+    build_file_tree({
+        (src / "copier.yml"): (
+            """\
                 _templates_suffix: .jinja
                 _envops:
                     keep_trailing_newline: false
                 data: foo
                 """
-            ),
-            (src / "data.txt.jinja"): "This is {{ data }}.\n",
-        }
-    )
+        ),
+        (src / "data.txt.jinja"): "This is {{ data }}.\n",
+    })
     # No warnings, because template is explicit
     with warnings.catch_warnings():
         warnings.simplefilter("error")
