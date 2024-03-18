@@ -70,7 +70,7 @@ def test_answer_changes(
     with local.cwd(src):
         build_file_tree(
             {
-                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_nice_yaml }}",
+                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_nice_yaml }}",  # noqa: E501
                 "copier.yml": """
                     condition:
                         type: bool

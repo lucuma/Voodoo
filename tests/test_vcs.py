@@ -87,8 +87,8 @@ def test_local_clone() -> None:
 
 @pytest.mark.impure
 def test_shallow_clone(tmp_path: Path, recwarn: pytest.WarningsRecorder) -> None:
-    # This test should always work but should be much slower if `is_git_shallow_repo()` is not
-    # checked in `clone()`.
+    # This test should always work but should be much slower if `is_git_shallow_repo()`
+    # is not checked in `clone()`.
     src_path = str(tmp_path / "autopretty")
     git("clone", "--depth=2", "https://github.com/copier-org/autopretty.git", src_path)
     assert Path(src_path, "README.md").exists()
@@ -135,8 +135,8 @@ def test_update_using_local_source_path_with_tilde(tmp_path: Path) -> None:
 
     # then prepare the user path to this clone (starting with ~)
     if os.name == "nt":
-        # in GitHub CI, the user in the temporary path is not the same as the current user:
-        # ["C:\\", "Users", "RUNNER~X"] vs. runneradmin
+        # in GitHub CI, the user in the temporary path is not the same as the current
+        # user: ["C:\\", "Users", "RUNNER~X"] vs. runneradmin
         user = Path(src_path).parts[2]
         user_src_path = str(Path("~", "..", user, *Path(src_path).parts[3:]))
     else:

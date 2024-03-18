@@ -491,7 +491,7 @@ def test_update_from_tagged_to_head(tmp_path_factory: pytest.TempPathFactory) ->
     with local.cwd(src):
         build_file_tree(
             {
-                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_nice_yaml }}",
+                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_nice_yaml }}",  # noqa: E501
                 "example": "1",
             }
         )
@@ -527,7 +527,7 @@ def test_skip_update(tmp_path_factory: pytest.TempPathFactory) -> None:
         build_file_tree(
             {
                 "copier.yaml": "_skip_if_exists: [skip_me]",
-                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_yaml }}",
+                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_yaml }}",  # noqa: E501
                 "skip_me": "1",
             }
         )
@@ -568,7 +568,7 @@ def test_overwrite_answers_file_always(
         build_file_tree(
             {
                 "copier.yaml": "question_1: true",
-                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_yaml }}",
+                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_yaml }}",  # noqa: E501
                 "answer_1.jinja": "{{ question_1 }}",
             }
         )
@@ -602,7 +602,7 @@ def test_file_removed(tmp_path_factory: pytest.TempPathFactory) -> None:
     with local.cwd(src):
         build_file_tree(
             {
-                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_yaml }}",
+                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_yaml }}",  # noqa: E501
                 "1.txt": "content 1",
                 Path("dir 2", "2.txt"): "content 2",
                 Path("dir 3", "subdir 3", "3.txt"): "content 3",
@@ -687,7 +687,7 @@ def test_update_inline_changed_answers_and_questions(
     with local.cwd(src):
         build_file_tree(
             {
-                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_yaml }}",
+                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_yaml }}",  # noqa: E501
                 "copier.yml": "b: false",
                 "content.jinja": """\
                     aaa
@@ -788,7 +788,7 @@ def test_update_in_repo_subdirectory(
     with local.cwd(src):
         build_file_tree(
             {
-                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_yaml }}",
+                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_yaml }}",  # noqa: E501
                 "version.txt": "v1",
             }
         )
@@ -869,7 +869,7 @@ def test_update_needs_more_context(
     with local.cwd(src):
         build_file_tree(
             {
-                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_yaml }}",
+                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_yaml }}",  # noqa: E501
                 "sample.py": dedent(
                     """\
                     def function_one():

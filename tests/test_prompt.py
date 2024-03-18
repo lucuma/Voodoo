@@ -99,7 +99,7 @@ def test_copy_default_advertised(
     name: str,
     args: tuple[str, ...],
 ) -> None:
-    """Test that the questions for the user are OK"""
+    """Test that the questions for the user are OK."""
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
     with local.cwd(src):
         build_file_tree(MARIO_TREE)
@@ -167,7 +167,7 @@ def test_update_skip_answered(
     update_action: str,
     args: tuple[str, ...],
 ) -> None:
-    """Test that the questions for the user are OK"""
+    """Test that the questions for the user are OK."""
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
     with local.cwd(src):
         build_file_tree(MARIO_TREE)
@@ -230,7 +230,7 @@ def test_update_with_new_field_in_new_version_skip_answered(
     name: str,
     args: tuple[str, ...],
 ) -> None:
-    """Test that the questions for the user are OK"""
+    """Test that the questions for the user are OK."""
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
     with local.cwd(src):
         build_file_tree(MARIO_TREE)
@@ -384,7 +384,7 @@ def test_placeholder(tmp_path_factory: pytest.TempPathFactory, spawn: Spawn) -> 
                     "question_2": {
                         "type": "str",
                         "help": "write a list of answers",
-                        "placeholder": "Write something like [[ question_1 ]], but better",
+                        "placeholder": "Write something like [[ question_1 ]], but better",  # noqa: E501
                     },
                 }
             ),
@@ -590,7 +590,7 @@ def test_multiline_defaults(
     tui.send(Keyboard.Enter)
     expect_prompt(tui, "json_multi", "json")
     tui.expect_exact(
-        '> [\n    "one",\n    "two",\n    {\n      "three": [\n        "four"\n      ]\n    }\n  ]'
+        '> [\n    "one",\n    "two",\n    {\n      "three": [\n        "four"\n      ]\n    }\n  ]'  # noqa: E501
     )
     tui.send(Keyboard.Alt + Keyboard.Enter)
     tui.expect_exact(pexpect.EOF)
@@ -809,8 +809,7 @@ CHOICES = [pytest.param(*specs, id=id) for id, specs in _CHOICES.items()]
 
 
 class QuestionTreeFixture(Protocol):
-    def __call__(self, **kwargs) -> tuple[Path, Path]:
-        ...
+    def __call__(self, **kwargs) -> tuple[Path, Path]: ...
 
 
 @pytest.fixture
@@ -837,8 +836,7 @@ def question_tree(tmp_path_factory: pytest.TempPathFactory) -> QuestionTreeFixtu
 
 
 class CopierFixture(Protocol):
-    def __call__(self, *args, **kwargs) -> PopenSpawn:
-        ...
+    def __call__(self, *args, **kwargs) -> PopenSpawn: ...
 
 
 @pytest.fixture

@@ -18,7 +18,7 @@ def tpl(tmp_path_factory: pytest.TempPathFactory) -> str:
         build_file_tree(
             {
                 "copier.yml": "your_name: Mario",
-                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_nice_yaml }}",
+                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_nice_yaml }}",  # noqa: E501
                 "name.txt.jinja": "This is your name: {{ your_name }}.",
             }
         )

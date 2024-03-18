@@ -159,7 +159,7 @@ def test_prereleases(tmp_path_factory: pytest.TempPathFactory) -> None:
         build_file_tree(
             {
                 "version.txt": "v1.0.0",
-                "[[ _copier_conf.answers_file ]].jinja": "[[_copier_answers|to_nice_yaml]]",
+                "[[ _copier_conf.answers_file ]].jinja": "[[_copier_answers|to_nice_yaml]]",  # noqa: E501
                 "copier.yaml": (
                     f"""\
                     _envops: {BRACKET_ENVOPS_JSON}
@@ -179,7 +179,7 @@ def test_prereleases(tmp_path_factory: pytest.TempPathFactory) -> None:
                     -   version: v2.a2
                         before:
                         - [python, -c, "import pathlib; pathlib.Path('v2.a2').touch()"]
-                    """
+                    """  # noqa: E501
                 ),
             }
         )
@@ -243,7 +243,7 @@ def test_pretend_mode(tmp_path_factory: pytest.TempPathFactory) -> None:
         git("init")
         build_file_tree(
             {
-                "[[ _copier_conf.answers_file ]].jinja": "[[_copier_answers|to_nice_yaml]]",
+                "[[ _copier_conf.answers_file ]].jinja": "[[_copier_answers|to_nice_yaml]]",  # noqa: E501
                 "copier.yml": (
                     f"""\
                     _envops: {BRACKET_ENVOPS_JSON}
@@ -268,7 +268,7 @@ def test_pretend_mode(tmp_path_factory: pytest.TempPathFactory) -> None:
     with local.cwd(src):
         build_file_tree(
             {
-                "[[ _copier_conf.answers_file ]].jinja": "[[_copier_answers|to_nice_yaml]]",
+                "[[ _copier_conf.answers_file ]].jinja": "[[_copier_answers|to_nice_yaml]]",  # noqa: E501
                 "copier.yml": (
                     f"""\
                     _envops: {BRACKET_ENVOPS_JSON}

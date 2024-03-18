@@ -13,14 +13,12 @@ from .helpers import build_file_tree
 def template_path(tmp_path_factory: pytest.TempPathFactory) -> str:
     # V1 of the template
     root = tmp_path_factory.mktemp("template")
-    build_file_tree(
-        {
-            root / "copier.yml": "favorite_app: Copier",
-            root / "fav.txt.jinja": "{{ favorite_app }}",
-            root
-            / "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_nice_yaml }}",
-        }
-    )
+    build_file_tree({
+        root / "copier.yml": "favorite_app: Copier",
+        root / "fav.txt.jinja": "{{ favorite_app }}",
+        root
+        / "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_nice_yaml }}",
+    })
     _git = git["-C", root]
     _git("init")
     _git("add", "-A")

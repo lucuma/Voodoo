@@ -204,7 +204,7 @@ def test_templated_prompt_custom_envops(
                 sentence:
                     type: str
                     default: "<% if powerlevel >= 9000 %>It's over 9000!<% else %>It's only << powerlevel >>...<% endif %>"
-                """
+                """  # noqa: E501
             ),
             (src / "result.jinja"): "<<sentence>>",
         }
@@ -350,7 +350,7 @@ def test_templated_prompt_with_conditional_choices(
                         Deployment Manager:
                             value: dm
                             validator: "{% if cloud != 'GCP' %}Requires GCP{% endif %}"
-                """
+                """  # noqa: E501
             ),
             (src / "result.jinja"): "{{question}}",
         }

@@ -17,16 +17,13 @@ def test_copy_symlink(tmp_path_factory: pytest.TempPathFactory) -> None:
     # Prepare repo bundle
     repo = src / "repo"
     repo.mkdir()
-    build_file_tree(
-        {
-            repo
-            / "copier.yaml": """\
+    build_file_tree({
+        repo / "copier.yaml": """\
             _preserve_symlinks: true
             """,
-            repo / "target.txt": "Symlink target",
-            repo / "symlink.txt": Path("target.txt"),
-        }
-    )
+        repo / "target.txt": "Symlink target",
+        repo / "symlink.txt": Path("target.txt"),
+    })
 
     with local.cwd(src):
         git("init")
@@ -52,17 +49,14 @@ def test_copy_symlink_templated_name(tmp_path_factory: pytest.TempPathFactory) -
     # Prepare repo bundle
     repo = src / "repo"
     repo.mkdir()
-    build_file_tree(
-        {
-            repo
-            / "copier.yaml": """\
+    build_file_tree({
+        repo / "copier.yaml": """\
             _preserve_symlinks: true
             symlink_name: symlink
             """,
-            repo / "target.txt": "Symlink target",
-            repo / "{{ symlink_name }}.txt": Path("target.txt"),
-        }
-    )
+        repo / "target.txt": "Symlink target",
+        repo / "{{ symlink_name }}.txt": Path("target.txt"),
+    })
 
     with local.cwd(src):
         git("init")
@@ -90,18 +84,15 @@ def test_copy_symlink_templated_target(
     # Prepare repo bundle
     repo = src / "repo"
     repo.mkdir()
-    build_file_tree(
-        {
-            repo
-            / "copier.yaml": """\
+    build_file_tree({
+        repo / "copier.yaml": """\
             _preserve_symlinks: true
             target_name: target
             """,
-            repo / "{{ target_name }}.txt": "Symlink target",
-            repo / "symlink1.txt.jinja": Path("{{ target_name }}.txt"),
-            repo / "symlink2.txt": Path("{{ target_name }}.txt"),
-        }
-    )
+        repo / "{{ target_name }}.txt": "Symlink target",
+        repo / "symlink1.txt.jinja": Path("{{ target_name }}.txt"),
+        repo / "symlink2.txt": Path("{{ target_name }}.txt"),
+    })
 
     with local.cwd(src):
         git("init")
@@ -132,15 +123,12 @@ def test_copy_symlink_missing_target(tmp_path_factory: pytest.TempPathFactory) -
     # Prepare repo bundle
     repo = src / "repo"
     repo.mkdir()
-    build_file_tree(
-        {
-            repo
-            / "copier.yaml": """\
+    build_file_tree({
+        repo / "copier.yaml": """\
             _preserve_symlinks: true
             """,
-            repo / "symlink.txt": Path("target.txt"),
-        }
-    )
+        repo / "symlink.txt": Path("target.txt"),
+    })
 
     with local.cwd(src):
         git("init")
@@ -169,16 +157,13 @@ def test_option_preserve_symlinks_false(
     # Prepare repo bundle
     repo = src / "repo"
     repo.mkdir()
-    build_file_tree(
-        {
-            repo
-            / "copier.yaml": """\
+    build_file_tree({
+        repo / "copier.yaml": """\
             _preserve_symlinks: false
             """,
-            repo / "target.txt": "Symlink target",
-            repo / "symlink.txt": Path("target.txt"),
-        }
-    )
+        repo / "target.txt": "Symlink target",
+        repo / "symlink.txt": Path("target.txt"),
+    })
 
     with local.cwd(src):
         git("init")
@@ -205,15 +190,12 @@ def test_option_preserve_symlinks_default(
     # Prepare repo bundle
     repo = src / "repo"
     repo.mkdir()
-    build_file_tree(
-        {
-            repo
-            / "copier.yaml": """\
+    build_file_tree({
+        repo / "copier.yaml": """\
             """,
-            repo / "target.txt": "Symlink target",
-            repo / "symlink.txt": Path("target.txt"),
-        }
-    )
+        repo / "target.txt": "Symlink target",
+        repo / "symlink.txt": Path("target.txt"),
+    })
 
     with local.cwd(src):
         git("init")
@@ -236,28 +218,22 @@ def test_option_preserve_symlinks_default(
 def test_update_symlink(tmp_path_factory: pytest.TempPathFactory) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
 
-    build_file_tree(
-        {
-            src
-            / ".copier-answers.yml.jinja": """\
+    build_file_tree({
+        src / ".copier-answers.yml.jinja": """\
                 # Changes here will be overwritten by Copier
                 {{ _copier_answers|to_nice_yaml }}
             """,
-            src
-            / "copier.yml": """\
+        src / "copier.yml": """\
                 _preserve_symlinks: true
             """,
-            src
-            / "aaaa.txt": """
+        src / "aaaa.txt": """
                 Lorem ipsum
             """,
-            src
-            / "bbbb.txt": """
+        src / "bbbb.txt": """
                 dolor sit amet
             """,
-            src / "symlink.txt": Path("./aaaa.txt"),
-        }
-    )
+        src / "symlink.txt": Path("./aaaa.txt"),
+    })
 
     with local.cwd(src):
         git("init")
@@ -296,28 +272,22 @@ def test_update_symlink(tmp_path_factory: pytest.TempPathFactory) -> None:
 def test_update_file_to_symlink(tmp_path_factory: pytest.TempPathFactory) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
 
-    build_file_tree(
-        {
-            src
-            / ".copier-answers.yml.jinja": """\
+    build_file_tree({
+        src / ".copier-answers.yml.jinja": """\
                 # Changes here will be overwritten by Copier
                 {{ _copier_answers|to_nice_yaml }}
             """,
-            src
-            / "copier.yml": """\
+        src / "copier.yml": """\
                 _preserve_symlinks: true
             """,
-            src
-            / "aaaa.txt": """
+        src / "aaaa.txt": """
                 Lorem ipsum
             """,
-            src
-            / "bbbb.txt": """
+        src / "bbbb.txt": """
                 dolor sit amet
             """,
-            src / "cccc.txt": Path("./aaaa.txt"),
-        }
-    )
+        src / "cccc.txt": Path("./aaaa.txt"),
+    })
 
     with local.cwd(src):
         git("init")
@@ -359,16 +329,13 @@ def test_exclude_symlink(tmp_path_factory: pytest.TempPathFactory) -> None:
     # Prepare repo bundle
     repo = src / "repo"
     repo.mkdir()
-    build_file_tree(
-        {
-            repo
-            / "copier.yaml": """\
+    build_file_tree({
+        repo / "copier.yaml": """\
             _preserve_symlinks: true
             """,
-            repo / "target.txt": "Symlink target",
-            repo / "symlink.txt": Path("target.txt"),
-        }
-    )
+        repo / "target.txt": "Symlink target",
+        repo / "symlink.txt": Path("target.txt"),
+    })
 
     with local.cwd(src):
         git("init")
@@ -392,16 +359,13 @@ def test_pretend_symlink(tmp_path_factory: pytest.TempPathFactory) -> None:
     # Prepare repo bundle
     repo = src / "repo"
     repo.mkdir()
-    build_file_tree(
-        {
-            repo
-            / "copier.yaml": """\
+    build_file_tree({
+        repo / "copier.yaml": """\
             _preserve_symlinks: true
             """,
-            repo / "target.txt": "Symlink target",
-            repo / "symlink.txt": Path("target.txt"),
-        }
-    )
+        repo / "target.txt": "Symlink target",
+        repo / "symlink.txt": Path("target.txt"),
+    })
 
     with local.cwd(src):
         git("init")
@@ -425,17 +389,14 @@ def test_copy_symlink_none_path(tmp_path_factory: pytest.TempPathFactory) -> Non
     # Prepare repo bundle
     repo = src / "repo"
     repo.mkdir()
-    build_file_tree(
-        {
-            repo
-            / "copier.yaml": """\
+    build_file_tree({
+        repo / "copier.yaml": """\
             _preserve_symlinks: true
             render: false
             """,
-            repo / "target.txt": "Symlink target",
-            repo / "{% if render %}symlink.txt{% endif %}": Path("target.txt"),
-        }
-    )
+        repo / "target.txt": "Symlink target",
+        repo / "{% if render %}symlink.txt{% endif %}": Path("target.txt"),
+    })
 
     with local.cwd(src):
         git("init")
@@ -457,12 +418,10 @@ def test_copy_symlink_none_path(tmp_path_factory: pytest.TempPathFactory) -> Non
 
 def test_recursive_symlink(tmp_path_factory: pytest.TempPathFactory) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
-    build_file_tree(
-        {
-            src / "copier.yaml": "_preserve_symlinks: true",
-            src / "one" / "two" / "three" / "root": Path("../../../"),
-        }
-    )
+    build_file_tree({
+        src / "copier.yaml": "_preserve_symlinks: true",
+        src / "one" / "two" / "three" / "root": Path("../../../"),
+    })
     run_copy(str(src), dst, defaults=True, overwrite=True)
     assert (dst / "one" / "two" / "three" / "root").is_symlink()
     assert readlink(dst / "one" / "two" / "three" / "root") == Path("../../../")

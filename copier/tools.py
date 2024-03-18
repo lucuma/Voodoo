@@ -1,4 +1,5 @@
 """Some utility functions."""
+
 from __future__ import annotations
 
 import errno
@@ -152,7 +153,8 @@ def force_str_end(original_str: str, end: str = "\n") -> str:
 def handle_remove_readonly(
     func: Callable,
     path: str,
-    # TODO: Change this union to simply `BaseException` when Python 3.11 support is dropped
+    # TODO: Change this union to simply `BaseException` when Python 3.11 support is
+    # dropped
     exc: BaseException | tuple[type[BaseException], BaseException, TracebackType],
 ) -> None:
     """Handle errors when trying to remove read-only files through `shutil.rmtree`.
@@ -178,7 +180,8 @@ def handle_remove_readonly(
 def readlink(link: Path) -> Path:
     """A custom version of os.readlink/pathlib.Path.readlink.
 
-    pathlib.Path.readlink is what we ideally would want to use, but it is only available on python>=3.9.
+    pathlib.Path.readlink is what we ideally would want to use, but it is only available
+    on python>=3.9.
     """
     if sys.version_info >= (3, 9):
         return link.readlink()
@@ -196,8 +199,8 @@ def _re_octal_replace(match: re.Match) -> str:
 def normalize_git_path(path: str) -> str:
     r"""Convert weird characters returned by Git to normal UTF-8 path strings.
 
-    A filename like âñ will be reported by Git as "\\303\\242\\303\\261" (octal notation).
-    This can be disabled with `git config core.quotepath off`.
+    A filename like âñ will be reported by Git as "\\303\\242\\303\\261" (octal
+    notation). This can be disabled with `git config core.quotepath off`.
 
     Args:
         path: The Git path to normalize.

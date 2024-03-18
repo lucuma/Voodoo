@@ -16,7 +16,7 @@ def test_types() -> None:
 
 
 def test_temporary_directory_with_readonly_files_deletion() -> None:
-    """Ensure temporary directories containing read-only files are properly deleted, whatever the OS."""
+    """Ensure temporary directories containing read-only files are properly deleted, whatever the OS."""  # noqa: E501
     with TemporaryDirectory() as tmp_dir:
         ro_file = Path(tmp_dir) / "readonly.txt"
         with ro_file.open("w") as fp:
@@ -26,7 +26,7 @@ def test_temporary_directory_with_readonly_files_deletion() -> None:
 
 
 def test_temporary_directory_with_git_repo_deletion() -> None:
-    """Ensure temporary directories containing git repositories are properly deleted, whatever the OS."""
+    """Ensure temporary directories containing git repositories are properly deleted, whatever the OS."""  # noqa: E501
     with TemporaryDirectory() as tmp_dir:
         git("init")
     assert not Path(tmp_dir).exists()

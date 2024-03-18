@@ -104,7 +104,7 @@ def test_update_subdirectory_from_root_path(
                     bye
                     """
                 ),
-                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_nice_yaml }}",
+                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers|to_nice_yaml }}",  # noqa: E501
             }
         )
         git("init")

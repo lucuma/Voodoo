@@ -17,8 +17,7 @@ from copier.types import AnyByStrDict
 from .helpers import build_file_tree
 
 
-class JinjaExtension(Extension):
-    ...
+class JinjaExtension(Extension): ...
 
 
 @pytest.mark.parametrize(
@@ -73,7 +72,10 @@ class JinjaExtension(Extension):
             },
             pytest.raises(
                 UnsafeTemplateError,
-                match="Template uses potentially unsafe features: jinja_extensions, tasks.",
+                match=(
+                    "Template uses potentially unsafe features: "
+                    "jinja_extensions, tasks."
+                ),
             ),
         ),
     ],
@@ -292,7 +294,7 @@ def test_update(
     with local.cwd(src):
         build_file_tree(
             {
-                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers | to_nice_yaml }}",
+                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers | to_nice_yaml }}",  # noqa: E501
                 "copier.yaml": yaml.safe_dump(spec_old),
             }
         )
@@ -335,7 +337,7 @@ def test_update_cli(
     with local.cwd(src):
         build_file_tree(
             {
-                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers | to_nice_yaml }}",
+                "{{ _copier_conf.answers_file }}.jinja": "{{ _copier_answers | to_nice_yaml }}",  # noqa: E501
                 "copier.yaml": "",
             }
         )
