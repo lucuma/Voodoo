@@ -228,11 +228,27 @@ class Worker:
             features.add("jinja_extensions")
         if self.template.tasks:
             features.add("tasks")
+        if self.template.pre_copy:
+            features.add("pre_copy")
+        if self.template.pre_update:
+            features.add("pre_update")
+        if self.template.post_copy:
+            features.add("post_copy")
+        if self.template.post_update:
+            features.add("post_update")
         if mode == "update" and self.subproject.template:
             if self.subproject.template.jinja_extensions:
                 features.add("jinja_extensions")
             if self.subproject.template.tasks:
                 features.add("tasks")
+            if self.subproject.template.pre_copy:
+                features.add("pre_copy")
+            if self.subproject.template.pre_update:
+                features.add("pre_update")
+            if self.subproject.template.post_copy:
+                features.add("post_copy")
+            if self.subproject.template.post_update:
+                features.add("post_update")
             for stage in get_args(Literal["before", "after"]):
                 if self.template.migration_tasks(stage, self.subproject.template):
                     features.add("migrations")
@@ -756,6 +772,7 @@ class Worker:
         was_existing = self.subproject.local_abspath.exists()
         src_abspath = self.template_copy_root
         try:
+            self._execute_tasks(self.template.pre_copy)
             if not self.quiet:
                 # TODO Unify printing tools
                 print(
@@ -767,6 +784,7 @@ class Worker:
                 # TODO Unify printing tools
                 print("")  # padding space
             self._execute_tasks(self.template.tasks)
+            self._execute_tasks(self.template.post_copy)
         except Exception:
             if not was_existing and self.cleanup_on_error:
                 rmtree(self.subproject.local_abspath)
@@ -828,12 +846,14 @@ class Worker:
             # asking for confirmation
             raise UserMessageError("Enable overwrite to update a subproject.")
         self._print_message(self.template.message_before_update)
+        self._execute_tasks(self.template.pre_update)
         if not self.quiet:
             # TODO Unify printing tools
             print(
                 f"Updating to template version {self.template.version}", file=sys.stderr
             )
         self._apply_update()
+        self._execute_tasks(self.template.post_update)
         self._print_message(self.template.message_after_update)
 
     def _apply_update(self) -> None:  # noqa: C901

@@ -464,6 +464,50 @@ class Template:
         ]
 
     @cached_property
+    def pre_copy(self) -> Sequence[Task]:
+        """Get pre-copy tasks defined in the template.
+
+        See [pre_copy][].
+        """
+        return [
+            Task(cmd=cmd, extra_env={"STAGE": "pre_copy"})
+            for cmd in self.config_data.get("pre_copy", [])
+        ]
+
+    @cached_property
+    def post_copy(self) -> Sequence[Task]:
+        """Get post-copy tasks defined in the template.
+
+        See [post_copy][].
+        """
+        return [
+            Task(cmd=cmd, extra_env={"STAGE": "post_copy"})
+            for cmd in self.config_data.get("post_copy", [])
+        ]
+
+    @cached_property
+    def pre_update(self) -> Sequence[Task]:
+        """Get pre-update tasks defined in the template.
+
+        See [pre_update][].
+        """
+        return [
+            Task(cmd=cmd, extra_env={"STAGE": "pre_update"})
+            for cmd in self.config_data.get("pre_update", [])
+        ]
+
+    @cached_property
+    def post_update(self) -> Sequence[Task]:
+        """Get post-update tasks defined in the template.
+
+        See [post_update][].
+        """
+        return [
+            Task(cmd=cmd, extra_env={"STAGE": "post_update"})
+            for cmd in self.config_data.get("post_update", [])
+        ]
+
+    @cached_property
     def templates_suffix(self) -> str:
         """Get the suffix defined for templates.
 
