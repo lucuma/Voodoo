@@ -725,7 +725,9 @@ class Worker:
         """
         is_template = relpath.name.endswith(self.template.templates_suffix)
         templated_sibling = (
-            self.template.local_abspath / f"{relpath}{self.template.templates_suffix}"
+            self.template.local_abspath
+            / self._render_string(self.template.subdirectory)
+            / f"{relpath}{self.template.templates_suffix}"
         )
         # With an empty suffix, the templated sibling always exists.
         if templated_sibling.exists() and self.template.templates_suffix:

@@ -22,6 +22,13 @@ def template_path(tmp_path_factory: pytest.TempPathFactory) -> str:
             ),
             (root / "conf_project" / "conf_readme.md"): (
                 """\
+                # Template subdirectory
+
+                This is the template README.
+                """
+            ),
+            (root / "conf_project" / "conf_readme.md.tmpl"): (
+                """\
                 # Demo subdirectory
 
                 Generated using previous answers `_subdirectory` value.
@@ -65,6 +72,15 @@ def test_copy_subdirectory_api_option(template_path: str, tmp_path: Path) -> Non
 def test_copy_subdirectory_config(template_path: str, tmp_path: Path) -> None:
     copier.run_copy(template_path, tmp_path, defaults=True, overwrite=True)
     assert (tmp_path / "conf_readme.md").exists()
+    assert not (tmp_path / "api_readme.md").exists()
+
+
+def test_copy_subdirectory_config_no_overwrite(
+    template_path: str, tmp_path: Path
+) -> None:
+    copier.run_copy(template_path, tmp_path, defaults=True, overwrite=False)
+    assert (tmp_path / "conf_readme.md").exists()
+    assert "# Demo" in (tmp_path / "conf_readme.md").read_text()
     assert not (tmp_path / "api_readme.md").exists()
 
 
