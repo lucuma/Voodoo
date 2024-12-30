@@ -121,6 +121,17 @@ The current commit hash from the template.
 
 The absolute path of the Python interpreter running Copier.
 
+### `_external_data`
+
+A dict of the data contained in [external_data][].
+
+When rendering the template, that data will be exposed in the special `_external_data`
+variable:
+
+-   Keys will be the same as in [external_data][].
+-   Values will be the files contents parsed as YAML. JSON is also compatible.
+-   Parsing is done lazily on first use.
+
 ### `_folder_name`
 
 The name of the project root directory.

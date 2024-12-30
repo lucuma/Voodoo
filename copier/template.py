@@ -10,7 +10,7 @@ from dataclasses import field
 from functools import cached_property
 from pathlib import Path, PurePosixPath
 from shutil import rmtree
-from typing import Any, Literal, Mapping, Sequence
+from typing import Any, Dict, Literal, Mapping, Sequence
 from warnings import warn
 
 import dunamai
@@ -328,6 +328,14 @@ class Template:
                 DEFAULT_EXCLUDE if Path(self.subdirectory) == Path(".") else [],
             )
         )
+
+    @cached_property
+    def external_data(self) -> Dict[str, str]:
+        """Get external data files specified in the template.
+
+        See [external_data][].
+        """
+        return self.config_data.get("external_data", {})
 
     @cached_property
     def jinja_extensions(self) -> tuple[str, ...]:

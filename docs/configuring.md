@@ -841,6 +841,75 @@ contains your data.
 
     Command line arguments passed via `--data` always take precedence over the data file.
 
+### `external_data`
+
+-   Format: `dict[str, str]`
+-   CLI flags: N/A
+-   Default value: `{}`
+
+This allows using preexisting data inside the rendering context. The format is a dict of
+strings, where:
+
+-   The dict key will be the namespace of the data under [`_external_data`][].
+-   The dict value is the relative path (from the subproject destination) where the YAML
+    data file should be found.
+
+!!! example "Template composition"
+
+    If your template is
+    [a complement of another template][applying-multiple-templates-to-the-same-subproject],
+    you can access the other template's answers with a pattern similar to this:
+
+    ```yaml title="copier.yml"
+    # Child template defaults to a different answers file, to avoid conflicts
+    _answers_file: .copier-answers.child-tpl.yml
+
+    # Child template loads parent answers
+    _external_data_files:
+        # A dynamic path. Make sure you answer that question
+        # before the first access to the data (with `_external_data.parent_tpl`)
+        parent_tpl: "{{ parent_tpl_answers_file }}"
+
+    # Ask user where they stored parent answers
+    parent_tpl_answers_file:
+        help: Where did you store answers of the parent template?
+        default: .copier-answers.yml
+
+    # Use a parent answer as the default value for a child question
+    target_version:
+        help: What version are you deploying?
+        # We already answered the `parent_tpl_answers_file` question, so we can
+        # now correctly access the external data from `_external_data.parent_tpl`
+        default: "{{ _external_data.parent_tpl.target_version }}"
+    ```
+
+!!! example "Loading secrets"
+
+    If your template has [secret questions][secret_questions], you can load the secrets
+    and use them, e.g., as default answers with a pattern similar to this:
+
+    ```yaml
+    # Template loads secrets from Git-ignored file
+    _external_data_files:
+        # A static path. If missing, it will return an empty dict
+        secrets: .secrets.yaml
+
+    # Use a secret answers as the default value for a secret question
+    password:
+        help: What is the password?
+        secret: true
+        # If `.secrets.yaml` exists, it has been loaded at this point and we can
+        # now correctly access the external data from `_external_data.secrets`
+        default: "{{ _external_data.secrets.password }}"
+    ```
+
+    A template might even render `.secrets.yaml` with the answers to secret questions
+    similar to this:
+
+    ```yaml title=".secrets.yaml.jinja"
+    password: "{{ password }}"
+    ```
+
 ### `envops`
 
 -   Format: `dict`

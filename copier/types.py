@@ -7,6 +7,7 @@ from typing import (
     Dict,
     Literal,
     Mapping,
+    MutableMapping,
     NewType,
     Optional,
     Sequence,
@@ -19,6 +20,7 @@ from pydantic import AfterValidator
 # simple types
 StrOrPath = Union[str, Path]
 AnyByStrDict = Dict[str, Any]
+AnyByStrMutableMapping = MutableMapping[str, Any]
 
 # sequences
 IntSeq = Sequence[int]
