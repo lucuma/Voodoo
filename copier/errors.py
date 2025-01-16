@@ -131,3 +131,7 @@ class DirtyLocalWarning(UserWarning, CopierWarning):
 
 class ShallowCloneWarning(UserWarning, CopierWarning):
     """The template repository is a shallow clone."""
+
+
+class MissingFileWarning(UserWarning, CopierWarning):
+    """I still couldn't find what I'm looking for."""
