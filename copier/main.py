@@ -46,6 +46,7 @@ from .errors import (
     YieldTagInFileError,
 )
 from .jinja_ext import YieldEnvironment, YieldExtension
+from .settings import Settings
 from .subproject import Subproject
 from .template import Task, Template
 from .tools import (
@@ -58,13 +59,7 @@ from .tools import (
     scantree,
     set_git_alternates,
 )
-from .types import (
-    MISSING,
-    AnyByStrDict,
-    JSONSerializable,
-    RelativePath,
-    StrOrPath,
-)
+from .types import MISSING, AnyByStrDict, JSONSerializable, RelativePath, StrOrPath
 from .user_data import DEFAULT_DATA, AnswersMap, Question
 from .vcs import get_git
 
@@ -192,6 +187,7 @@ class Worker:
     answers_file: RelativePath | None = None
     vcs_ref: str | None = None
     data: AnyByStrDict = field(default_factory=dict)
+    settings: Settings = field(default_factory=Settings.from_file)
     exclude: Sequence[str] = ()
     use_prereleases: bool = False
     skip_if_exists: Sequence[str] = ()
@@ -467,6 +463,7 @@ class Worker:
             question = Question(
                 answers=result,
                 jinja_env=self.jinja_env,
+                settings=self.settings,
                 var_name=var_name,
                 **details,
             )
@@ -998,11 +995,14 @@ class Worker:
         )
         subproject_subdir = self.subproject.local_abspath.relative_to(subproject_top)
 
-        with TemporaryDirectory(
-            prefix=f"{__name__}.old_copy.",
-        ) as old_copy, TemporaryDirectory(
-            prefix=f"{__name__}.new_copy.",
-        ) as new_copy:
+        with (
+            TemporaryDirectory(
+                prefix=f"{__name__}.old_copy.",
+            ) as old_copy,
+            TemporaryDirectory(
+                prefix=f"{__name__}.new_copy.",
+            ) as new_copy,
+        ):
             # Copy old template into a temporary destination
             with replace(
                 self,

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from textwrap import dedent
 from typing import Any, Callable
@@ -87,6 +88,59 @@ def test_read_data(
         A number: 12345
         A boolean: True
         A list: one, two, three
+        """
+    )
+
+
+def test_settings_defaults_precedence(
+    tmp_path_factory: pytest.TempPathFactory, settings_path: Path
+) -> None:
+    src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
+    build_file_tree(
+        {
+            (src / "copier.yml"): (
+                f"""\
+                # This is a comment
+                _envops: {BRACKET_ENVOPS_JSON}
+                a_string: lorem ipsum
+                a_number: 12345
+                a_boolean: true
+                a_list:
+                    - one
+                    - two
+                    - three
+                """
+            ),
+            (src / "user_data.txt.jinja"): (
+                """\
+                A string: [[ a_string ]]
+                A number: [[ a_number ]]
+                A boolean: [[ a_boolean ]]
+                A list: [[ ", ".join(a_list) ]]
+                """
+            ),
+        }
+    )
+    settings_path.write_text(
+        dedent(
+            """\
+        defaults:
+            a_string: whatever
+            a_number: 42
+            a_boolean: false
+            a_list:
+                - one
+                - two
+    """
+        )
+    )
+    copier.run_copy(str(src), dst, defaults=True, overwrite=True)
+    assert (dst / "user_data.txt").read_text() == dedent(
+        """\
+        A string: whatever
+        A number: 42
+        A boolean: False
+        A list: one, two
         """
     )
 
@@ -445,6 +499,7 @@ def test_user_defaults(
         "user_defaults_updated",
         "data_initial",
         "data_updated",
+        "settings_defaults",
         "expected_initial",
         "expected_updated",
     ),
@@ -460,6 +515,53 @@ def test_user_defaults(
             },
             {},
             {},
+            {},
+            dedent(
+                """\
+                A string: foo
+                """
+            ),
+            dedent(
+                """\
+                A string: foo
+                """
+            ),
+        ),
+        # Settings defaults takes precedence over initial defaults.
+        # The output should remain unchanged following the update operation.
+        (
+            {},
+            {},
+            {},
+            {},
+            {
+                "a_string": "bar",
+            },
+            dedent(
+                """\
+                A string: bar
+                """
+            ),
+            dedent(
+                """\
+                A string: bar
+                """
+            ),
+        ),
+        # User provided defaults takes precedence over initial defaults and settings defaults.
+        # The output should remain unchanged following the update operation.
+        (
+            {
+                "a_string": "foo",
+            },
+            {
+                "a_string": "foobar",
+            },
+            {},
+            {},
+            {
+                "a_string": "bar",
+            },
             dedent(
                 """\
                 A string: foo
@@ -484,6 +586,9 @@ def test_user_defaults(
                 "a_string": "yosemite",
             },
             {},
+            {
+                "a_string": "bar",
+            },
             dedent(
                 """\
                 A string: yosemite
@@ -510,6 +615,9 @@ def test_user_defaults(
             {
                 "a_string": "red rocks",
             },
+            {
+                "a_string": "bar",
+            },
             dedent(
                 """\
                 A string: yosemite
@@ -529,8 +637,10 @@ def test_user_defaults_updated(
     user_defaults_updated: AnyByStrDict,
     data_initial: AnyByStrDict,
     data_updated: AnyByStrDict,
+    settings_defaults: AnyByStrDict,
     expected_initial: str,
     expected_updated: str,
+    settings_path: Path,
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
     with local.cwd(src):
@@ -557,6 +667,7 @@ def test_user_defaults_updated(
             }
         )
         git_init()
+    settings_path.write_text(f"defaults: {json.dumps(settings_defaults)}")
 
     copier.run_copy(
         str(src),
