@@ -563,3 +563,22 @@ def test_multiselect_choices_with_templated_default_value(
         "python_version": "3.11",
         "github_runner_python_version": ["3.11"],
     }
+
+
+def test_copier_phase_variable(
+    tmp_path_factory: pytest.TempPathFactory,
+    spawn: Spawn,
+) -> None:
+    src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
+    build_file_tree(
+        {
+            (src / "copier.yml"): """\
+                phase:
+                    type: str
+                    default: "{{ _copier_phase }}"
+            """
+        }
+    )
+    tui = spawn(COPIER_PATH + ("copy", str(src), str(dst)), timeout=10)
+    expect_prompt(tui, "phase", "str")
+    tui.expect_exact("prompt")

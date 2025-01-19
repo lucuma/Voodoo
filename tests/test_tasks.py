@@ -164,3 +164,19 @@ def test_os_specific_tasks(
     monkeypatch.setattr("copier.main.OS", os)
     copier.run_copy(str(src), dst, unsafe=True)
     assert (dst / filename).exists()
+
+
+def test_copier_phase_variable(tmp_path_factory: pytest.TempPathFactory) -> None:
+    src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
+    build_file_tree(
+        {
+            (src / "copier.yml"): (
+                """
+                _tasks:
+                    - touch {{ _copier_phase }}
+                """
+            )
+        }
+    )
+    copier.run_copy(str(src), dst, unsafe=True)
+    assert (dst / "tasks").exists()
