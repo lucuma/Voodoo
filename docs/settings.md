@@ -37,3 +37,20 @@ to use the following well-known variables:
 | `user_email`  | `str` | User's email address   |
 | `github_user` | `str` | User's GitHub username |
 | `gitlab_user` | `str` | User's GitLab username |
+
+## Trusted locations
+
+Users may define trusted locations in the `trust` setting. It should be a list of Copier
+template repositories, or repositories prefix.
+
+```yaml
+trust:
+    - https://github.com/your_account/your_template.git
+    - https://github.com/your_account/
+    - ~/templates/
+```
+
+!!! warning "Security considerations"
+
+    Locations ending with `/` will be matched as prefixes, trusting all templates starting with that path.
+    Locations not ending with `/` will be matched exactly.

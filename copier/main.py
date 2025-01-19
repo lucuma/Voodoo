@@ -241,7 +241,7 @@ class Worker:
 
     def _check_unsafe(self, mode: Literal["copy", "update"]) -> None:
         """Check whether a template uses unsafe features."""
-        if self.unsafe:
+        if self.unsafe or self.settings.is_trusted(self.template.url):
             return
         features: set[str] = set()
         if self.template.jinja_extensions:
