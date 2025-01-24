@@ -1142,8 +1142,9 @@ class Worker:
                     filename.split("!! ").pop()
                     for filename in ignored_files.splitlines()
                 ]
+                skip_if_exists = chain(self.skip_if_exists, self.template.skip_if_exists)
                 for skip_pattern in chain(
-                    self.skip_if_exists, self.template.skip_if_exists, extra_exclude
+                    [subproject_subdir/skip for skip in skip_if_exists], extra_exclude
                 ):
                     apply_cmd = apply_cmd["--exclude", skip_pattern]
                 (apply_cmd << diff)(retcode=None)
