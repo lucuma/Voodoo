@@ -1588,6 +1588,10 @@ switch `--UNSAFE` or `--trust`.
 
     Not supported in `copier.yml`.
 
+!!! tip
+
+    See the [`trust` setting][trusted-locations] to mark some repositories as always trusted.
+
 ### `use_prereleases`
 
 -   Format: `bool`

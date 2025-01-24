@@ -15,55 +15,48 @@ from copier.vcs import checkout_latest_tag, clone, get_git_version, get_repo
 from .helpers import git
 
 
-def test_get_repo() -> None:
-    get = get_repo
-
-    assert get("git@git.myproject.org:MyProject") == "git@git.myproject.org:MyProject"
-    assert (
-        get("git://git.myproject.org/MyProject") == "git://git.myproject.org/MyProject"
-    )
-    assert (
-        get("https://github.com/jpscaletti/copier.git")
-        == "https://github.com/jpscaletti/copier.git"
-    )
-
-    assert (
-        get("https://github.com/jpscaletti/copier")
-        == "https://github.com/jpscaletti/copier.git"
-    )
-    assert (
-        get("https://gitlab.com/gitlab-org/gitlab")
-        == "https://gitlab.com/gitlab-org/gitlab.git"
-    )
-
-    assert (
-        get("gh:/jpscaletti/copier.git") == "https://github.com/jpscaletti/copier.git"
-    )
-    assert get("gh:jpscaletti/copier.git") == "https://github.com/jpscaletti/copier.git"
-    assert get("gl:jpscaletti/copier.git") == "https://gitlab.com/jpscaletti/copier.git"
-    assert get("gh:jpscaletti/copier") == "https://github.com/jpscaletti/copier.git"
-    assert get("gl:jpscaletti/copier") == "https://gitlab.com/jpscaletti/copier.git"
-
-    assert (
-        get("git+https://git.myproject.org/MyProject")
-        == "https://git.myproject.org/MyProject"
-    )
-    assert (
-        get("git+ssh://git.myproject.org/MyProject")
-        == "ssh://git.myproject.org/MyProject"
-    )
-
-    assert get("git://git.myproject.org/MyProject.git@master")
-    assert get("git://git.myproject.org/MyProject.git@v1.0")
-    assert get("git://git.myproject.org/MyProject.git@da39a3ee5e6b4b0d3255bfef956018")
-
-    assert get("http://google.com") is None
-    assert get("git.myproject.org/MyProject") is None
-    assert get("https://google.com") is None
-
-    assert (
-        get("tests/demo_updatediff_repo.bundle") == "tests/demo_updatediff_repo.bundle"
-    )
+@pytest.mark.parametrize(
+    "url,expected",
+    [
+        ("git@git.myproject.org:MyProject", "git@git.myproject.org:MyProject"),
+        ("git://git.myproject.org/MyProject", "git://git.myproject.org/MyProject"),
+        (
+            "https://github.com/jpscaletti/copier.git",
+            "https://github.com/jpscaletti/copier.git",
+        ),
+        (
+            "https://github.com/jpscaletti/copier",
+            "https://github.com/jpscaletti/copier.git",
+        ),
+        (
+            "https://gitlab.com/gitlab-org/gitlab",
+            "https://gitlab.com/gitlab-org/gitlab.git",
+        ),
+        (
+            "git+https://git.myproject.org/MyProject",
+            "https://git.myproject.org/MyProject",
+        ),
+        ("git+ssh://git.myproject.org/MyProject", "ssh://git.myproject.org/MyProject"),
+        (
+            "git://git.myproject.org/MyProject.git@master",
+            "git://git.myproject.org/MyProject.git@master",
+        ),
+        (
+            "git://git.myproject.org/MyProject.git@v1.0",
+            "git://git.myproject.org/MyProject.git@v1.0",
+        ),
+        (
+            "git://git.myproject.org/MyProject.git@da39a3ee5e6b4b0d3255bfef956018",
+            "git://git.myproject.org/MyProject.git@da39a3ee5e6b4b0d3255bfef956018",
+        ),
+        ("http://google.com", None),
+        ("git.myproject.org/MyProject", None),
+        ("https://google.com", None),
+        ("tests/demo_updatediff_repo.bundle", "tests/demo_updatediff_repo.bundle"),
+    ],
+)
+def test_get_repo(url: str, expected: str) -> None:
+    assert get_repo(url) == expected
 
 
 @pytest.mark.impure

@@ -46,6 +46,7 @@ from .errors import (
     YieldTagInFileError,
 )
 from .jinja_ext import YieldEnvironment, YieldExtension
+from .settings import Settings
 from .subproject import Subproject
 from .template import Task, Template
 from .tools import (
@@ -58,13 +59,7 @@ from .tools import (
     scantree,
     set_git_alternates,
 )
-from .types import (
-    MISSING,
-    AnyByStrDict,
-    JSONSerializable,
-    RelativePath,
-    StrOrPath,
-)
+from .types import MISSING, AnyByStrDict, JSONSerializable, RelativePath, StrOrPath
 from .user_data import DEFAULT_DATA, AnswersMap, Question
 from .vcs import get_git
 
@@ -98,7 +93,7 @@ class Worker:
         src_path:
             String that can be resolved to a template path, be it local or remote.
 
-            See [copier.vcs.get_repo][].
+            See [copier.vcs.get_repo][] and [`shortcuts` setting][shortcuts]
 
             If it is `None`, then it means that you are
             [updating a project][updating-a-project], and the original
@@ -192,6 +187,7 @@ class Worker:
     answers_file: RelativePath | None = None
     vcs_ref: str | None = None
     data: AnyByStrDict = field(default_factory=dict)
+    settings: Settings = field(default_factory=Settings.from_file)
     exclude: Sequence[str] = ()
     use_prereleases: bool = False
     skip_if_exists: Sequence[str] = ()
@@ -245,7 +241,7 @@ class Worker:
 
     def _check_unsafe(self, mode: Literal["copy", "update"]) -> None:
         """Check whether a template uses unsafe features."""
-        if self.unsafe:
+        if self.unsafe or self.settings.is_trusted(self.template.url):
             return
         features: set[str] = set()
         if self.template.jinja_extensions:
@@ -467,6 +463,7 @@ class Worker:
             question = Question(
                 answers=result,
                 jinja_env=self.jinja_env,
+                settings=self.settings,
                 var_name=var_name,
                 **details,
             )
@@ -875,7 +872,10 @@ class Worker:
                 raise TypeError("Template not found")
             url = str(self.subproject.template.url)
         result = Template(
-            url=url, ref=self.vcs_ref, use_prereleases=self.use_prereleases
+            url=url,
+            ref=self.vcs_ref,
+            use_prereleases=self.use_prereleases,
+            settings=self.settings,
         )
         self._cleanup_hooks.append(result._cleanup)
         return result
@@ -998,11 +998,14 @@ class Worker:
         )
         subproject_subdir = self.subproject.local_abspath.relative_to(subproject_top)
 
-        with TemporaryDirectory(
-            prefix=f"{__name__}.old_copy.",
-        ) as old_copy, TemporaryDirectory(
-            prefix=f"{__name__}.new_copy.",
-        ) as new_copy:
+        with (
+            TemporaryDirectory(
+                prefix=f"{__name__}.old_copy.",
+            ) as old_copy,
+            TemporaryDirectory(
+                prefix=f"{__name__}.new_copy.",
+            ) as new_copy,
+        ):
             # Copy old template into a temporary destination
             with replace(
                 self,

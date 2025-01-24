@@ -11,11 +11,13 @@ nav:
   - Configuring a template: "configuring.md"
   - Generating a project: "generating.md"
   - Updating a project: "updating.md"
+  - Settings: "settings.md"
   - Reference:
       - cli.py: "reference/cli.md"
       - errors.py: "reference/errors.md"
       - jinja_ext.py: "reference/jinja_ext.md"
       - main.py: "reference/main.md"
+      - settings.py: "reference/settings.md"
       - subproject.py: "reference/subproject.md"
       - template.py: "reference/template.md"
       - tools.py: "reference/tools.md"

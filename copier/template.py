@@ -21,6 +21,8 @@ from packaging.version import Version, parse
 from plumbum.machines import local
 from pydantic.dataclasses import dataclass
 
+from copier.settings import Settings
+
 from .errors import (
     InvalidConfigFileError,
     MultipleConfigFilesError,
@@ -216,6 +218,7 @@ class Template:
     url: str
     ref: str | None = None
     use_prereleases: bool = False
+    settings: Settings = field(default_factory=Settings)
 
     def _cleanup(self) -> None:
         if temp_clone := self._temp_clone():
@@ -570,7 +573,7 @@ class Template:
         format, which wouldn't be understood by the underlying VCS system. This
         property returns the expanded version, which should work properly.
         """
-        return get_repo(self.url) or self.url
+        return self.settings.normalize(self.url)
 
     @cached_property
     def version(self) -> Version | None:
@@ -603,6 +606,6 @@ class Template:
     @cached_property
     def vcs(self) -> VCSTypes | None:
         """Get VCS system used by the template, if any."""
-        if get_repo(self.url):
+        if get_repo(self.url_expanded):
             return "git"
         return None

@@ -44,12 +44,6 @@ def get_git_version() -> Version:
 
 GIT_PREFIX = ("git@", "git://", "git+", "https://github.com/", "https://gitlab.com/")
 GIT_POSTFIX = ".git"
-REPLACEMENTS = (
-    (re.compile(r"^gh:/?(.*\.git)$"), r"https://github.com/\1"),
-    (re.compile(r"^gh:/?(.*)$"), r"https://github.com/\1.git"),
-    (re.compile(r"^gl:/?(.*\.git)$"), r"https://gitlab.com/\1"),
-    (re.compile(r"^gl:/?(.*)$"), r"https://gitlab.com/\1.git"),
-)
 
 
 def is_git_repo_root(path: StrOrPath) -> bool:
@@ -98,8 +92,6 @@ def get_repo(url: str) -> str | None:
         url:
             Valid examples:
 
-            - gh:copier-org/copier
-            - gl:copier-org/copier
             - git@github.com:copier-org/copier.git
             - git+https://mywebsiteisagitrepo.example.com/
             - /local/path/to/git/repo
@@ -107,9 +99,6 @@ def get_repo(url: str) -> str | None:
             - ~/path/to/git/repo
             - ~/path/to/git/repo.bundle
     """
-    for pattern, replacement in REPLACEMENTS:
-        url = re.sub(pattern, replacement, url)
-
     if url.endswith(GIT_POSTFIX) or url.startswith(GIT_PREFIX):
         if url.startswith("git+"):
             return url[4:]
