@@ -893,6 +893,18 @@ to know available options.
 
 The CLI option can be passed several times to add several patterns.
 
+Each pattern can be templated using Jinja.
+
+!!! example
+
+    Templating `exclude` patterns using `_operation` allows to have files
+    that are rendered once during `copy`, but are never updated:
+
+    ```yaml
+    _exclude:
+        - "{% if _operation == 'update' -%}src/*_example.py{% endif %}"
+    ```
+
 !!! info
 
     When you define this parameter in `copier.yml`, it will **replace** the default
@@ -1353,6 +1365,8 @@ configuring `secret: true` in the [advanced prompt format][advanced-prompt-forma
 exist, but always be present. If they do not exist in a project during an `update`
 operation, they will be recreated.
 
+Each pattern can be templated using Jinja.
+
 !!! example
 
     For example, it can be used if your project generates a password the 1st time and
@@ -1503,6 +1517,9 @@ other items not present.
         - [invoke, end-process, "--full-conf={{ _copier_conf|to_json }}"]
         # Your script can be run by the same Python environment used to run Copier
         - ["{{ _copier_python }}", task.py]
+        # Run a command during the initial copy operation only, excluding updates
+        - command: ["{{ _copier_python }}", task.py]
+          when: "{{ _operation == 'copy' }}"
         # OS-specific task (supported values are "linux", "macos", "windows" and `None`)
         - command: rm {{ name_of_the_project }}/README.md
           when: "{{ _copier_conf.os in  ['linux', 'macos'] }}"

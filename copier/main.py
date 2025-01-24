@@ -7,9 +7,10 @@ import platform
 import subprocess
 import sys
 from contextlib import suppress
+from contextvars import ContextVar
 from dataclasses import asdict, field, replace
 from filecmp import dircmp
-from functools import cached_property, partial
+from functools import cached_property, partial, wraps
 from itertools import chain
 from pathlib import Path
 from shutil import rmtree
@@ -62,6 +63,8 @@ from .types import (
     MISSING,
     AnyByStrDict,
     JSONSerializable,
+    Operation,
+    ParamSpec,
     RelativePath,
     StrOrPath,
 )
@@ -69,6 +72,29 @@ from .user_data import DEFAULT_DATA, AnswersMap, Question
 from .vcs import get_git
 
 _T = TypeVar("_T")
+_P = ParamSpec("_P")
+
+_operation: ContextVar[Operation] = ContextVar("_operation")
+
+
+def as_operation(value: Operation) -> Callable[[Callable[_P, _T]], Callable[_P, _T]]:
+    """Decorator to set the current operation context, if not defined already.
+
+    This value is used to template specific configuration options.
+    """
+
+    def _decorator(func: Callable[_P, _T]) -> Callable[_P, _T]:
+        @wraps(func)
+        def _wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _T:
+            token = _operation.set(_operation.get(value))
+            try:
+                return func(*args, **kwargs)
+            finally:
+                _operation.reset(token)
+
+        return _wrapper
+
+    return _decorator
 
 
 @dataclass(config=ConfigDict(extra="forbid"))
@@ -243,7 +269,7 @@ class Worker:
         for method in self._cleanup_hooks:
             method()
 
-    def _check_unsafe(self, mode: Literal["copy", "update"]) -> None:
+    def _check_unsafe(self, mode: Operation) -> None:
         """Check whether a template uses unsafe features."""
         if self.unsafe:
             return
@@ -296,8 +322,10 @@ class Worker:
         Arguments:
             tasks: The list of tasks to run.
         """
+        operation = _operation.get()
         for i, task in enumerate(tasks):
             extra_context = {f"_{k}": v for k, v in task.extra_vars.items()}
+            extra_context["_operation"] = operation
 
             if not cast_to_bool(self._render_value(task.condition, extra_context)):
                 continue
@@ -327,7 +355,7 @@ class Worker:
                 / Path(self._render_string(str(task.working_directory), extra_context))
             ).absolute()
 
-            extra_env = {k.upper(): str(v) for k, v in task.extra_vars.items()}
+            extra_env = {k[1:].upper(): str(v) for k, v in extra_context.items()}
             with local.cwd(working_directory), local.env(**extra_env):
                 subprocess.run(task_cmd, shell=use_shell, check=True, env=local.env)
 
@@ -587,7 +615,14 @@ class Worker:
     @cached_property
     def match_exclude(self) -> Callable[[Path], bool]:
         """Get a callable to match paths against all exclusions."""
-        return self._path_matcher(self.all_exclusions)
+        # Include the current operation in the rendering context.
+        # Note: This method is a cached property, it needs to be regenerated
+        # when reusing an instance in different contexts.
+        extra_context = {"_operation": _operation.get()}
+        return self._path_matcher(
+            self._render_string(exclusion, extra_context=extra_context)
+            for exclusion in self.all_exclusions
+        )
 
     @cached_property
     def match_skip(self) -> Callable[[Path], bool]:
@@ -890,6 +925,7 @@ class Worker:
         return self.template.local_abspath / subdir
 
     # Main operations
+    @as_operation("copy")
     def run_copy(self) -> None:
         """Generate a subproject from zero, ignoring what was in the folder.
 
@@ -900,6 +936,11 @@ class Worker:
 
         See [generating a project][generating-a-project].
         """
+        with suppress(AttributeError):
+            # We might have switched operation context, ensure the cached property
+            # is regenerated to re-render templates.
+            del self.match_exclude
+
         self._check_unsafe("copy")
         self._print_message(self.template.message_before_copy)
         self._ask()
@@ -926,6 +967,7 @@ class Worker:
             # TODO Unify printing tools
             print("")  # padding space
 
+    @as_operation("copy")
     def run_recopy(self) -> None:
         """Update a subproject, keeping answers but discarding evolution."""
         if self.subproject.template is None:
@@ -936,6 +978,7 @@ class Worker:
         with replace(self, src_path=self.subproject.template.url) as new_worker:
             new_worker.run_copy()
 
+    @as_operation("update")
     def run_update(self) -> None:
         """Update a subproject that was already generated.
 
@@ -983,6 +1026,11 @@ class Worker:
             print(
                 f"Updating to template version {self.template.version}", file=sys.stderr
             )
+        with suppress(AttributeError):
+            # We might have switched operation context, ensure the cached property
+            # is regenerated to re-render templates.
+            del self.match_exclude
+
         self._apply_update()
         self._print_message(self.template.message_after_update)
 
