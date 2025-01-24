@@ -31,6 +31,7 @@ from .errors import (
 from .tools import copier_version, handle_remove_readonly
 from .types import AnyByStrDict, VCSTypes
 from .vcs import checkout_latest_tag, clone, get_git, get_repo
+from .zip_source import is_zip_url, unzip
 
 # Default list of files in the template to exclude from the rendered project
 DEFAULT_EXCLUDE: tuple[str, ...] = (
@@ -556,6 +557,8 @@ class Template:
             result = Path(clone(self.url_expanded, self.ref))
             if self.ref is None:
                 checkout_latest_tag(result, self.use_prereleases)
+        elif self.vcs == "zip":
+            result = Path(unzip(self.url))
         if not result.is_dir():
             raise ValueError("Local template must be a directory.")
         with suppress(OSError):
@@ -605,4 +608,6 @@ class Template:
         """Get VCS system used by the template, if any."""
         if get_repo(self.url):
             return "git"
+        if is_zip_url(self.url):
+            return "zip"
         return None

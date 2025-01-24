@@ -26,6 +26,8 @@ The "template" parameter can be a local path, an URL, or a shortcut URL:
 If Copier doesn't detect your remote URL as a Git repository, make sure it starts with
 one of `git+https://`, `git+ssh://`, `git@` or `git://`, or it ends with `.git`.
 
+Copier also supports template in zip archive from local file or remote http endpoint, remote zip url starts with `http//` or `https//`, ends with `.zip`.
+
 Use the `--data` command-line argument or the `data` parameter of the
 `copier.run_copy()` function to pass whatever extra context you want to be available in
 the templates. The arguments can be any valid Python value, even a function.
