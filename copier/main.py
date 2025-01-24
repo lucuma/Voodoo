@@ -903,6 +903,10 @@ class Worker:
         self._check_unsafe("copy")
         self._print_message(self.template.message_before_copy)
         self._ask()
+        self._generate()
+
+    def _generate(self) -> None:
+        """Generate the project files after answers have been collected."""
         was_existing = self.subproject.local_abspath.exists()
         try:
             if not self.quiet:
