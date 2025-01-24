@@ -23,6 +23,8 @@ from pydantic_core.core_schema import ValidationInfo
 from pygments.lexers.data import JsonLexer, YamlLexer
 from questionary.prompts.common import Choice
 
+from copier.settings import Settings
+
 from .errors import InvalidTypeError, UserMessageError
 from .tools import cast_to_bool, cast_to_str, force_str_end
 from .types import MISSING, AnyByStrDict, MissingType, OptStrOrPath, StrOrPath
@@ -178,6 +180,7 @@ class Question:
     var_name: str
     answers: AnswersMap
     jinja_env: SandboxedEnvironment
+    settings: Settings = field(default_factory=Settings)
     choices: Sequence[Any] | dict[Any, Any] | str = field(default_factory=list)
     multiselect: bool = False
     default: Any = MISSING
@@ -246,7 +249,9 @@ class Question:
                 except KeyError:
                     if self.default is MISSING:
                         return MISSING
-                    result = self.render_value(self.default)
+                    result = self.render_value(
+                        self.settings.defaults.get(self.var_name, self.default)
+                    )
         result = self.cast_answer(result)
         return result
 
