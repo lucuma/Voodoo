@@ -1,0 +1,1 @@
+llms-txt-action~=1.0.0
