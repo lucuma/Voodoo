@@ -1,5 +1,6 @@
 """Complex types, annotations, validators."""
 
+from enum import Enum
 from pathlib import Path
 from typing import (
     Annotated,
@@ -58,3 +59,12 @@ def path_is_relative(value: Path) -> Path:
 
 AbsolutePath = Annotated[Path, AfterValidator(path_is_absolute)]
 RelativePath = Annotated[Path, AfterValidator(path_is_relative)]
+
+
+class Phase(str, Enum):
+    """The known execution phases."""
+
+    PROMPT = "prompt"
+    TASKS = "tasks"
+    MIGRATE = "migrate"
+    RENDER = "render"

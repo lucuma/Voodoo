@@ -125,6 +125,10 @@ The absolute path of the Python interpreter running Copier.
 
 The name of the project root directory.
 
+### `_copier_phase`
+
+The current phase, one of `"prompt"`,`"tasks"`, `"migrate"` or `"render"`.
+
 ## Variables (context-specific)
 
 Some rendering contexts provide variables unique to them:

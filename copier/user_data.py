@@ -25,7 +25,7 @@ from questionary.prompts.common import Choice
 
 from .errors import InvalidTypeError, UserMessageError
 from .tools import cast_to_bool, cast_to_str, force_str_end
-from .types import MISSING, AnyByStrDict, MissingType, OptStrOrPath, StrOrPath
+from .types import MISSING, AnyByStrDict, MissingType, OptStrOrPath, Phase, StrOrPath
 
 
 # TODO Remove these two functions as well as DEFAULT_DATA in a future release
@@ -441,7 +441,13 @@ class Question:
                 else value
             )
         try:
-            return template.render({**self.answers.combined, **(extra_answers or {})})
+            return template.render(
+                {
+                    **self.answers.combined,
+                    **(extra_answers or {}),
+                    "_copier_phase": Phase.PROMPT.value,
+                }
+            )
         except UndefinedError as error:
             raise UserMessageError(str(error)) from error
 

@@ -62,6 +62,7 @@ from .types import (
     MISSING,
     AnyByStrDict,
     JSONSerializable,
+    Phase,
     RelativePath,
     StrOrPath,
 )
@@ -206,6 +207,7 @@ class Worker:
     unsafe: bool = False
     skip_answered: bool = False
     skip_tasks: bool = False
+    phase: Phase = Phase.PROMPT
 
     answers: AnswersMap = field(default_factory=AnswersMap, init=False)
     _cleanup_hooks: list[Callable[[], None]] = field(default_factory=list, init=False)
@@ -354,6 +356,7 @@ class Worker:
             _copier_conf=conf,
             _folder_name=self.subproject.local_abspath.name,
             _copier_python=sys.executable,
+            _copier_phase=self.phase.value,
         )
 
     def _path_matcher(self, patterns: Iterable[str]) -> Callable[[Path], bool]:
@@ -456,6 +459,7 @@ class Worker:
 
     def _ask(self) -> None:  # noqa: C901
         """Ask the questions of the questionnaire and record their answers."""
+        self.phase = Phase.PROMPT
         result = AnswersMap(
             user_defaults=self.user_defaults,
             init=self.data,
@@ -601,6 +605,7 @@ class Worker:
 
     def _render_template(self) -> None:
         """Render the template in the subproject root."""
+        self.phase = Phase.RENDER
         follow_symlinks = not self.template.preserve_symlinks
         for src in scantree(str(self.template_copy_root), follow_symlinks):
             src_abspath = Path(src.path)
@@ -916,6 +921,7 @@ class Worker:
                 # TODO Unify printing tools
                 print("")  # padding space
             if not self.skip_tasks:
+                self.phase = Phase.TASKS
                 self._execute_tasks(self.template.tasks)
         except Exception:
             if not was_existing and self.cleanup_on_error:
@@ -1015,6 +1021,7 @@ class Worker:
             ) as old_worker:
                 old_worker.run_copy()
             # Run pre-migration tasks
+            self.phase = Phase.MIGRATE
             self._execute_tasks(
                 self.template.migration_tasks("before", self.subproject.template)  # type: ignore[arg-type]
             )
@@ -1090,7 +1097,7 @@ class Worker:
                 self._git_initialize_repo()
                 new_copy_head = git("rev-parse", "HEAD").strip()
             # Extract diff between temporary destination and real destination
-            # with some special handling of newly added files in both the poject
+            # with some special handling of newly added files in both the project
             # and the template.
             with local.cwd(old_copy):
                 # Configure borrowing Git objects from the real destination and

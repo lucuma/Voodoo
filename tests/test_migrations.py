@@ -521,3 +521,32 @@ def test_migration_jinja_variables(
             assert f"{variable}={value}" in vars
         else:
             assert f"{variable}=" in vars
+
+
+def test_copier_phase_variable(tmp_path_factory: pytest.TempPathFactory) -> None:
+    """Test that the Phase variable is properly set."""
+    src, dst = map(tmp_path_factory.mktemp, ("src", "dst"))
+
+    with local.cwd(src):
+        build_file_tree(
+            {
+                **COPIER_ANSWERS_FILE,
+                "copier.yml": (
+                    """\
+                    _migrations:
+                        - touch {{ _copier_phase }}
+                    """
+                ),
+            }
+        )
+        git_save(tag="v1")
+    with local.cwd(dst):
+        run_copy(src_path=str(src))
+        git_save()
+
+    with local.cwd(src):
+        git("tag", "v2")
+    with local.cwd(dst):
+        run_update(defaults=True, overwrite=True, unsafe=True)
+
+    assert (dst / "migrate").is_file()
