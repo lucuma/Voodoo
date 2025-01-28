@@ -139,3 +139,7 @@ class DirtyLocalWarning(UserWarning, CopierWarning):
 
 class ShallowCloneWarning(UserWarning, CopierWarning):
     """The template repository is a shallow clone."""
+
+
+class MissingSettingsWarning(UserWarning, CopierWarning):
+    """Settings path has been defined but file is missing."""

@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import platform
 import sys
+from pathlib import Path
 from typing import Any, Iterator
+from unittest.mock import patch
 
 import pytest
 from coverage.tracer import CTracer
@@ -75,3 +77,18 @@ def gitconfig(gitconfig: GitConfig) -> Iterator[GitConfig]:
     """
     with local.env(GIT_CONFIG_GLOBAL=str(gitconfig)):
         yield gitconfig
+
+
+@pytest.fixture
+def config_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
+    config_path = tmp_path / "config"
+    monkeypatch.delenv("COPIER_SETTINGS_PATH", raising=False)
+    with patch("copier.settings.user_config_path", return_value=config_path):
+        yield config_path
+
+
+@pytest.fixture
+def settings_path(config_path: Path) -> Path:
+    config_path.mkdir()
+    settings_path = config_path / "settings.yml"
+    return settings_path

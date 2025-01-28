@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import nullcontext as does_not_raise
+from pathlib import Path
 from typing import ContextManager
 
 import pytest
@@ -90,20 +91,26 @@ def test_copy(
 
 
 @pytest.mark.parametrize("unsafe", [False, True])
+@pytest.mark.parametrize("trusted_from_settings", [False, True])
 def test_copy_cli(
     tmp_path_factory: pytest.TempPathFactory,
     capsys: pytest.CaptureFixture[str],
     unsafe: bool,
+    trusted_from_settings: bool,
+    settings_path: Path,
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ["src", "dst"])
     build_file_tree(
         {(src / "copier.yaml"): yaml.safe_dump({"_tasks": ["touch task.txt"]})}
     )
+    if trusted_from_settings:
+        settings_path.write_text(f"trust: ['{src}']")
+
     _, retcode = CopierApp.run(
         ["copier", "copy", *(["--UNSAFE"] if unsafe else []), str(src), str(dst)],
         exit=False,
     )
-    if unsafe:
+    if unsafe or trusted_from_settings:
         assert retcode == 0
     else:
         assert retcode == 4
@@ -322,10 +329,13 @@ def test_update(
 
 
 @pytest.mark.parametrize("unsafe", [False, "--trust", "--UNSAFE"])
+@pytest.mark.parametrize("trusted_from_settings", [False, True])
 def test_update_cli(
     tmp_path_factory: pytest.TempPathFactory,
     capsys: pytest.CaptureFixture[str],
     unsafe: bool | str,
+    trusted_from_settings: bool,
+    settings_path: Path,
 ) -> None:
     src, dst = map(tmp_path_factory.mktemp, ["src", "dst"])
     unsafe_args = [unsafe] if unsafe else []
@@ -341,6 +351,9 @@ def test_update_cli(
         git("add", ".")
         git("commit", "-m1")
         git("tag", "v1")
+
+    if trusted_from_settings:
+        settings_path.write_text(f"trust: ['{src}']")
 
     _, retcode = CopierApp.run(
         ["copier", "copy", str(src), str(dst)] + unsafe_args,
@@ -374,7 +387,7 @@ def test_update_cli(
         + unsafe_args,
         exit=False,
     )
-    if unsafe:
+    if unsafe or trusted_from_settings:
         assert retcode == 0
     else:
         assert retcode == 4
